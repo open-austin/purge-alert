@@ -11,6 +11,7 @@ registration entries are stored in a specific json format using the
 [Storage API](https://developer.mozilla.org/en-US/docs/Mozilla/Add-ons/WebExtensions/API/storage).
 
 ### Overall files:
+* `manifest.json` - The config file for the browser extension itself
 * `popup.html` + `popup.js` - The dropdown when you click the icon in your browser toolbar
 * `background.js` - Manages running checker scripts for the.
 * `add_registration.html` - The starting point to add a registration to monitor
@@ -27,9 +28,9 @@ registration entries are stored in a specific json format using the
 {
     "key": "6dda738f-d6ae-4160-ae22-650ada5e1a08",  // a uuid generated as the primary key for this registration monitoring entry
     "created": "2020-01-01T00:00:00+00:00",         // when the entry was added (used by popup.js to sort the added registrations)
-    "state": "TX",                                  // the state for is entry (used by background.js to import the checker script)
     "status": "valid|error|needs-attention|empty",  // the current status of the entry (used to determine the browser toolbar icon)
     "popupEntry": "...",                            // the current status in html (included in popup.html)
+    "state": "TX",                                  // the state for is entry (used by background.js to import the checker script)
     "stateStorage": {...},                          // state-specific storage for voter details and logs
 }
 ```

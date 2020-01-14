@@ -1,0 +1,14 @@
+{
+    "extensionName": {
+        "message": "Purge Alert - Monitor Your Voter Registration",
+        "description": "Name of the extension."
+    },
+    "extensionDescription": {
+        "message": "Monitor your voter registration and get alerted if your registration is every purged from the voter rolls.",
+        "description": "Description of the extension."
+    },
+    "browserActionTitle": {
+        "message": "Purge Alert - Monitor Your Voter Registration",
+        "description": "Title for the browser action icon"
+    }
+}

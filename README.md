@@ -22,9 +22,9 @@ registration status and will alert you if you are purged from the rolls.
 2. Click the new icon in your browser toolbar to show the dropdown menu.
 3. Add you current voter registration information for your state.
 4. Purge Alert will start monitoring that registration on a regular basis.
-  * A green icon - we found your voter registration at the last check
-  * A red icon - we can no longer find your voter registration
-  * A yellow icon - we ran into an issue and need your input to fix it
+    * A green icon - we found your voter registration at the last check
+    * A red icon - we can no longer find your voter registration
+    * A yellow icon - we ran into an issue and need your input to fix it
 
 ## Why did you make this?
 Many states

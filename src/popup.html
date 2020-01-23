@@ -2,19 +2,76 @@
 <html>
     <head>
         <meta charset="utf-8">
+        <style>
+            body {
+                font-family: sans-serif;
+                font-size: 14px;
+                width: 400px;
+                box-sizing: border-box;
+            }
+            #entries {
+                list-style: circle;
+                padding-left: 0;
+            }
+            footer {
+                text-align: right;
+            }
+        </style>
     </head>
     <body>
-        <ul>
-            <li>One</li>
-            <li>Two</li>
-            <li>Three</li>
+        <h1>Purge Alert</h1>
+        <ul id="entries">
+            <li>
+                <style>
+                    #entry-123-content {
+                        background-color: red;
+                    }
+                    #entry-123-content .see-logs {
+                        float: right;
+                    }
+                </style>
+                <div id="entry-123-content">
+                    <div>
+                        <div class="see-logs">
+                            <a href="#">see logs</a>
+                        </div>
+                        <h4 class="name">
+                            TX - Joe Smith
+                            <a href="#">edit</a>
+                        </h4>
+                        <div class="address">
+                            123 Main St, Austin, TX
+                            123 Main St, Austin, TX
+                            123 Main St, Austin, TX
+                        </div>
+                        <div class="vuid">
+                            VUID #: 1292389848393
+                        </div>
+                        <div class="status">
+                            <span>
+                                ✓
+                            </span>
+                            <span>
+                                ✓
+                            </span>
+                            Valid registration
+                        </div>
+                        <div class="updates">
+                            Last checked 2 days ago
+                            <a href="#">check now</a>
+                        </div>
+                    </div>
+                </div>
+            </li>
         </ul>
         <div>
-            <button id="ask-permission">Ask Permission</button>
+            <a id="add-registration" href="#add-registration">
+                [+] add another registration</a>
         </div>
-        <div>
-            <button id="make-request">Make Request</button>
-        </div>
+        <footer>
+            <a href="#">Purge Alert</a>
+            is an open-source project by OpenAustin.
+        </footer>
         <script src="popup.js"></script>
     </body>
 </html>

@@ -3,22 +3,28 @@
  * in the Add Registration dropdown.
  */
 "use strict"
+console.log("TX loaded!");
+window.PurgeAlert['TX'] = {
 
-// populate the form with desired inputs
+    // populate the form with desired inputs
+    "insertRegistrationForm": function(){
+        console.log("TX insert form!");
+        document.querySelector("#state-section").innerHTML = "Texas!!!!";
+    }
 
-// validate the inputs
+    // validate the inputs
 
-// create the database entry (but don't save it yet)
+    // create the database entry (but don't save it yet)
 
-// run the checker (using the mocked db entry)
+    // run the checker (using the mocked db entry)
 
-// wait for the results (with updated db entry)
+    // wait for the results (with updated db entry)
 
-// found the voter, so save the db entry and close the window
+    // found the voter, so save the db entry and close the window
 
-// found multiple voters, so ask to select the correct one
+    // found multiple voters, so ask to select the correct one
 
-// couldn't find a matching voter, so ask to correct and retry
+    // couldn't find a matching voter, so ask to correct and retry
 
-// ran into another type of error, so package up a debug zip and offer to submit it as a bug
-
+    // ran into another type of error, so package up a debug zip and offer to submit it as a bug
+}

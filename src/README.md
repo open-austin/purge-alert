@@ -26,25 +26,26 @@ registration entries are stored in a specific json format using the
 ### Storage Entries
 ```
 {
-    "key": "6dda738f-d6ae-4160-ae22-650ada5e1a08",  // a uuid generated as the primary key for this registration monitoring entry
-    "created": "2020-01-01T00:00:00+00:00",         // when the entry was added (used by popup.js to sort the added registrations)
-    "status": "valid|error|needs-attention|empty",  // the current status of the entry (used to determine the browser toolbar icon)
-    "popupEntry": "...",                            // the current status in html (included in popup.html)
-    "state": "TX",                                  // the state for is entry (used by background.js to import the checker script)
-    "stateStorage": {...},                          // state-specific storage for voter details and logs
+    "key": "6dda738f-d6ae-4160-ae22-650ada5e1a08",          // a uuid generated as the primary key for this registration monitoring entry
+    "created": "2020-01-01T00:00:00+00:00",                 // when the entry was added (used by popup.js to sort the added registrations)
+    "status": "valid|error|needs-attention|empty|pending",  // the current status of the entry (used to determine the browser toolbar icon)
+    "popupEntry": "...",                                    // the current status in html (included in popup.html)
+    "state": "TX",                                          // the state for is entry (used by background.js to import the checker script)
+    "stateStorage": {...},                                  // state-specific storage for voter details and logs
 }
 ```
 
 ## How to write a new state
-* Create a `states/{state}/add_registration.js` script adds a `PurgeAlert.{state}.insertRegistrationForm()` when loaded, so it can be called when a user selects that state from the dropdown.
-  * When inserted, you probably want to include `onsubmit=...` functionality that runs logic you also inject when `insertRegistrationForm()` is called, so that you can save new entries to storage.
-  * You probably want to run your state's `checkRegistration(entry, callback)` with an entry where `"key": null` before saving to storage so you can let the user fix typos before closing the window.
-  * When you've successfully saved a new registration entry and want to close the `add_registration.html` interface, send a message to the the parent `popup.html` via `opener.postMessage("close");` and it will close the `add_registration.html` window and reload the `popup.html` interface.
-* Create a `states/{state}/check_registration.js` script adds a `PurgeAlert.{state}.checkRegistration(entry, callback)` when loaded, so it can be called by `background.js` to check the voter's registration for that entry.
-  * When called, this function is responsible for updating the `status`, `popupEntry` fields in the `entry` object and saving those updates to storage for that `key`.
-  * `status` for each entry is bubbled up to the browser toolbar icon in an override hierarchy (`error > needs-attention > valid > empty`), where if any entry is one of the higher level, the browser toolbar icon is that level (e.g. if any entry is `error` the overall browser toolbar icon will be the `error` icon).
-  * You are encouraged to update the `entry` object in storage as you go (e.g. to give status updates in `popupEntry` as your checker runs), and `background.js` will detect these changes (via `storage.onChanged`) and automatically update the browser toolbar icon and `popup.html` (if needed).
-  * It is up to you to rate limit and determine what you want to include in the `popupEntry` html (usually it's some summary info about the voter's registration, the last check result, links to view logs, etc.).
+* Create a `states/{state}/state.js` script that adds two `PurgeAlert.{state}.{functions}` when loaded:
+  * `PurgeAlert.{state}.insertRegistrationForm()` - what's called when a user selects that state from the dropdown in the `add_registration.html` interface.
+  * `PurgeAlert.{state}.checkRegistration(entry, canAskForUrlPermission, callback)` - what's called when both adding a new registration and by `background.js` when periodically checking the status of a voter registration.
+    * When called, this function is responsible for updating the `status`, `popupEntry` fields in the `entry` object and saving those updates to storage for that `key`.
+    * `entry` is the object using the [Entry](#storage-entries) object format (can have `"key": null` if a mocked entry from `add_registration.html` before saving to storage).
+    * `canAskForUrlPermission` is a boolean for whether the user can be asked for additional domain access permissions (this is usually `true` when called from `add_registration.html` and `false` when called from `background.js`).
+    * `callback(entry)` is called with the updated entry when checking is done or errored (errors should be stored in the entry itself).
+    * `status` for each entry is bubbled up to the browser toolbar icon in an override hierarchy (`error > needs-attention > valid > empty`), where if any entry is one of the higher level, the browser toolbar icon is that level (e.g. if any entry is `error` the overall browser toolbar icon will be the `error` icon).
+    * You are encouraged to update the `entry` object in storage as you go (e.g. to give status updates in `popupEntry` as your checker runs), and `background.js` will detect these changes (via `storage.onChanged`) and automatically update the browser toolbar icon and `popup.html` (if needed).
+    * It is up to you to rate limit and determine what you want to include in the `popupEntry` html (usually it's some summary info about the voter's registration, the last check result, links to view logs, etc.).
 * Create additional pages and functionality that are linked to from html in the `insertRegistrationForm()` and `popupEntry`.
   * These are typically things like fixing lookup errors, viewing checking history, solving captchas, etc.
 

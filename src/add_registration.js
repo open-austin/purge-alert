@@ -1,25 +1,33 @@
-console.log("add_registration.js loaded!");
 
+// global PA object
 window.PurgeAlert = {};
 
+// render the selected state's add-registration form
 function updateStateSection(){
+
+    // get which state is selected in the dropdown
     var state = document.querySelector("#state-dropdown").value;
-    console.log("updateStateSection called!", state);
     if(state){
+
+        // insert the state's logic if not already added
         if(!document.querySelectorAll("#add-registration-" + state).length){
             var stateScript = document.createElement("script");
             stateScript.id = "add-registration-" + state;
-            stateScript.src = "states/" + state + "/add_registration.js";
+            stateScript.src = "states/" + state + "/state.js";
             document.querySelector("body").appendChild(stateScript);
         }
-        var intervalID = window.setInterval(function(state){
-            if(window.PurgeAlert[state] && window.PurgeAlert[state].insertRegistrationForm){
-                window.PurgeAlert[state].insertRegistrationForm();
-                clearInterval(intervalID);
-            }
-        }, 100, state);
-        
+
+        // call the selected state's insertRegistrationForm()
+        if(window.PurgeAlert[state] && window.PurgeAlert[state].insertRegistrationForm){
+            window.PurgeAlert[state].insertRegistrationForm();
+        }
+        // the state's script hasn't loaded yet, so wait a bit and try again
+        else {
+            setTimeout(updateStateSection, 50);
+        }
     }
+
+    // no state selected
     else{
         document.querySelector("#state-section").innerHTML = "";
     }

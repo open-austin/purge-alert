@@ -5,7 +5,11 @@
     "version": "1.0",
     "default_locale": "en",
     "background": {
-        "scripts": ["background.js"]
+        "scripts": [
+            "assets/browser-polyfill.min.js",
+            "assets/utils.js",
+            "background.js"
+        ]
     },
     "browser_action": {
         "default_popup": "popup.html",
@@ -13,6 +17,7 @@
         "default_title": "__MSG_browserActionTitle__"
     },
     "permissions": [
+        "storage"
     ],
     "optional_permissions": [
         "<all_urls>"

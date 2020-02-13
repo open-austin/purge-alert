@@ -1,14 +1,97 @@
 {
     "extensionName": {
         "message": "Purge Alert - Monitor Your Voter Registration",
-        "description": "Name of the extension."
+        "description": "Name of the extension"
     },
     "extensionDescription": {
         "message": "Monitor your voter registration and get alerted if your registration is every purged from the voter rolls.",
-        "description": "Description of the extension."
+        "description": "Description of the extension"
     },
     "browserActionTitle": {
         "message": "Purge Alert - Monitor Your Voter Registration",
         "description": "Title for the browser action icon"
+    },
+
+
+    "popupTitle": {
+        "message": "Purge Alert",
+        "description": "Project title for the popup"
+    },
+    "popupBlankStateMessage": {
+        "message": "No registrations added yet.",
+        "description": "What to say when there's no voter registration entries"
+    },
+    "popupAddRegistrationButton": {
+        "message": "add registration",
+        "description": "Button text for adding another voter registration to monitor"
+    },
+    "popupFooterLink": {
+        "message": "Purge Alert",
+        "description": "Project title for the footer link"
+    },
+    "popupFooterMessage": {
+        "message": "is an open-source project by OpenAustin.",
+        "description": "Description of who makes this project"
+    },
+
+
+    "addRegTitle": {
+        "message": "is an open-source project by OpenAustin.",
+        "description": "Description of who makes this project"
+    },
+    "addRegSubmit": {
+        "message": "Submit",
+        "description": "Button text for submitting a new voter registration"
+    },
+    "addRegSubmitting": {
+        "message": "Submitting...",
+        "description": "Button text pending state for submitting a new voter registration"
+    },
+    "voterFoundStatus": {
+        "message": "Voter found!",
+        "description": "Message for when adding a new voter registration was successful"
+    },
+    "voterFoundCloseWindow": {
+        "message": "Close this window",
+        "description": "Link telling the user they can close the add-registration window when done"
+    },
+    "multipleVotersError": {
+        "message": "Multiple voters found.",
+        "description": "Error message for when found more than one voter that matches the lookup"
+    },
+    "voterNotFoundError": {
+        "message": "No voter found.",
+        "description": "Error message for when found no voters that matches the lookup"
+    },
+
+
+    "seeLogsLink": {
+        "message": "see logs",
+        "description": "Link to see the logs for a voter registration entry"
+    },
+    "editLink": {
+        "message": "edit",
+        "description": "Link to edit a voter registration entry"
+    },
+    "checkAgainLink": {
+        "message": "check again",
+        "description": "Link to trigger checking a voter registration status again"
+    },
+    "regStatusValid": {
+        "message": "valid registration",
+        "description": "Status message when a voter registeration is good"
+    },
+    "lastUpdatedPrefix": {
+        "message": "Last updated",
+        "description": "Prefix for when an entry was last updated"
+    },
+    "timeSincePast": {
+        "message": "ago",
+        "description": "Suffix for relative times in the past"
+    },
+    "timeSinceFuture": {
+        "message": "from now",
+        "description": "Suffix for relative times in the future"
     }
+
 }

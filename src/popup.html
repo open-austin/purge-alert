@@ -13,14 +13,14 @@
                 list-style: circle;
                 padding-left: 0;
             }
-            footer {
-                text-align: right;
-            }
         </style>
     </head>
     <body>
-        <h1>Purge Alert</h1>
+        <h1 id="popup-title">
+            Purge Alert
+        </h1>
         <ul id="entries">
+            <!--
             <li>
                 <style>
                     #entry-123-content {
@@ -63,15 +63,23 @@
                     </div>
                 </div>
             </li>
+            -->
         </ul>
+        <div id="blank-state" style="display:none;">
+            <span>
+                No registrations added yet.
+            </span>
+        </div>
         <div>
             <a id="add-registration" href="#add-registration">
-                [+] add another registration</a>
+                [+] <span>add registration</span></a>
         </div>
         <footer>
-            <a href="#">Purge Alert</a>
-            is an open-source project by OpenAustin.
+            <a id="footer-link" href="https://github.com/open-austin/purge-alert" target="_blank">Purge Alert</a>
+            <span id="footer-message">is an open-source project by OpenAustin.</span>
         </footer>
+        <script src="assets/browser-polyfill.min.js"></script>
+        <script src="assets/utils.js"></script>
         <script src="popup.js"></script>
     </body>
 </html>

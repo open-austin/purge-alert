@@ -86,7 +86,19 @@ window.PurgeAlert['TX'] = {
                         //    "created": "2020-01-01T00:00:00+00:00",
                         //    "checkingMessage": "",
                         //    "error": {...},
-                        //    "foundVoters": [...],
+                        //    "foundVoters": [
+                        //        {
+                        //            "name": "JANE ANN DOE",
+                        //            "address": ["123 MAIN ST", "AUSTIN TX 77777"],
+                        //            "validFrom": "2020-01-01",
+                        //            "dateRegistered": "2018-10-18",
+                        //            "voterStatus": "ACTIVE",
+                        //            "county": "TRAVIS",
+                        //            "precinct": "200",
+                        //            "vuid": "123456789",
+                        //        },
+                        //        ...
+                        //    ],
                         //},
                     ],
                 },
@@ -169,6 +181,103 @@ window.PurgeAlert['TX'] = {
         document.querySelector("#tx-add-form").addEventListener("submit", _addVoterRegistration);
     },
 
+    //////////////////////////////
+    // insertRegistrationForm() //
+    //////////////////////////////
+    "renderPopupEntry": function(entry){
+
+        // get entry's most recent check in its history
+        var historyItem = undefined;
+        for(var i = (entry['stateStorage']['history'].length - 1); i >= 0; i--){
+            var thisHistoryItem = entry['stateStorage']['history'][i];
+            if(thisHistoryItem['type'] === "runChecking"){
+                historyItem = entry['stateStorage']['history'][i];
+                break;
+            }
+        }
+
+        // no checks, so show blank state
+        if(historyItem === undefined){
+            return `
+                <b>No checks yet</b>
+            `;// TODO: make this better
+        }
+
+        // locale-specific date
+        var updated = new Date(historyItem['created']);
+        var updatedStr = updated.toLocaleDateString(browser.i18n.LanguageCode, {
+            year: "numeric",
+            month: "numeric",
+            day: "numeric"
+        })
+
+        // zero voters found in the last check
+        if(historyItem['foundVoters'].length === 0){
+            var renderedHTML = `
+                <b>No voter registration found!</b>
+            `;// TODO: make this better
+            return renderedHTML;
+        }
+
+        // more than one voters found in the last check
+        if(historyItem['foundVoters'].length >= 2){
+            var renderedHTML = `
+                <b>Multiple matching voter registrations found!</b>
+            `;// TODO: make this better
+            return renderedHTML;
+        }
+
+        // found one voter's registration, hooray!
+        var renderedHTML = `
+            <style>
+                #entry-${entry['key']}-content {
+                    border: 1px solid #aaa;
+                    padding: 0px 10px 10px 10px;
+                    margin-top: 5px;
+                }
+                #entry-${entry['key']}-content .see-logs {
+                    float: right;
+                }
+                #entry-${entry['key']}-content .checkmark {
+                    color: #009900;
+                }
+            </style>
+            <div id="entry-${entry['key']}-content">
+                <div>
+                    <div class="see-logs">
+                        <a href="#" data-run="openLogs" data-state="TX" data-entry="${entry['key']}"
+                            >${browser.i18n.getMessage("seeLogsLink")}</a>
+                        <br>
+                        <a href="#" data-run="openRemove" data-state="TX" data-entry="${entry['key']}"
+                            >${browser.i18n.getMessage("removeLink")}</a>
+                    </div>
+                    <h4 class="name">
+                        TX - ${historyItem['foundVoters'][0]['name']}
+                        <a href="#" data-run="openEdit" data-state="TX" data-entry="${entry['key']}"
+                            >${browser.i18n.getMessage("editLink")}</a>
+                    </h4>
+                    <div class="address">
+                        ${historyItem['foundVoters'][0]['address'].join(", ")}
+                    </div>
+                    <div class="vuid">
+                        VUID #: ${historyItem['foundVoters'][0]['vuid']}
+                    </div>
+                    <div class="status">
+                        <b class="checkmark">✓</b>
+                        ${browser.i18n.getMessage("regStatusValid")}
+                    </div>
+                    <div class="updates">
+                        <span>${browser.i18n.getMessage("lastUpdatedPrefix")}</span>
+                        <span>${updatedStr}</span>
+                        <a href="#" data-run="checkAgain" data-state="TX" data-entry="${entry['key']}"
+                            >${browser.i18n.getMessage("checkAgainLink")}</a>
+                    </div>
+                </div>
+            </div>
+        `;
+        return renderedHTML;
+    },
+
     ////////////////////////////////////////
     // checkRegistration(entry, callback) //
     ////////////////////////////////////////
@@ -180,18 +289,7 @@ window.PurgeAlert['TX'] = {
             "created": (new Date).toISOString(),
             "checkingMessage": "Starting...",
             "error": {},
-            "foundVoters": [
-                //{
-                //    "name": "JANE ANN DOE",
-                //    "address": ["123 MAIN ST", "AUSTIN TX 77777"],
-                //    "validFrom": "2020-01-01",
-                //    "dateRegistered": "2018-10-18",
-                //    "voterStatus": "ACTIVE",
-                //    "county": "TRAVIS",
-                //    "precinct": "200",
-                //    "vuid": "123456789",
-                //},
-            ],
+            "foundVoters": [],
         }
         entry['stateStorage']['history'].push(historyItem);
 
@@ -202,9 +300,6 @@ window.PurgeAlert['TX'] = {
                 // update status message
                 if(index < 3){
                     thisHistoryItem['checkingMessage'] = "Running " + index + "...";
-                    thisEntry['popupEntry'] = `
-                        <b>Running ${index}...</b>
-                    `; //TODO
                 }
 
                 // last iteration
@@ -223,60 +318,15 @@ window.PurgeAlert['TX'] = {
                         },
                     ]; //TODO: make this real
                     thisHistoryItem['foundVoters'] = foundVoters;
-                    var updated = new Date(historyItem['created']);
-                    var updatedStr = updated.toLocaleDateString(browser.i18n.LanguageCode, {
-                        year: "numeric",
-                        month: "numeric",
-                        day: "numeric"
-                    })
 
                     // update the status based on the voter lookup results
                     if(foundVoters.length === 1){
                         thisEntry['status'] = "valid";
-                        thisEntry['popupEntry'] = `
-                            <style>
-                                #entry-${thisEntry['key']}-content {
-                                    border: 1px solid #aaa;
-                                    padding: 0px 10px 10px 10px;
-                                    margin-top: 5px;
-                                }
-                                #entry-${thisEntry['key']}-content .see-logs {
-                                    float: right;
-                                }
-                                #entry-${thisEntry['key']}-content .checkmark {
-                                    color: #009900;
-                                }
-                            </style>
-                            <div id="entry-${thisEntry['key']}-content">
-                                <div>
-                                    <div class="see-logs">
-                                        <a href="#" data-run="openLogs" data-state="TX"
-                                            >${browser.i18n.getMessage("seeLogsLink")}</a>
-                                    </div>
-                                    <h4 class="name">
-                                        TX - ${foundVoters[0]['name']}
-                                        <a href="#" data-run="openEdit" data-state="TX"
-                                            >${browser.i18n.getMessage("editLink")}</a>
-                                    </h4>
-                                    <div class="address">
-                                        ${foundVoters[0]['address'].join(", ")}
-                                    </div>
-                                    <div class="vuid">
-                                        VUID #: ${foundVoters[0]['vuid']}
-                                    </div>
-                                    <div class="status">
-                                        <b class="checkmark">✓</b>
-                                        ${browser.i18n.getMessage("regStatusValid")}
-                                    </div>
-                                    <div class="updates">
-                                        <span>${browser.i18n.getMessage("lastUpdatedPrefix")}</span>
-                                        <span>${updatedStr}</span>
-                                        <a href="#" data-run="checkAgain" data-state="TX"
-                                            >${browser.i18n.getMessage("checkAgainLink")}</a>
-                                    </div>
-                                </div>
-                            </div>
-                        `;
+
+                        // assign a uuid if a new entry
+                        if(thisEntry['key'] === null){
+                            thisEntry['key'] = uuid4();
+                        }
                     }
                     // multiple voters found
                     else if(foundVoters.length > 1){
@@ -287,16 +337,10 @@ window.PurgeAlert['TX'] = {
                         thisEntry['status'] = "empty";
                     }
 
-                    // only assign uuids for new entries if they are valid (so they get saved)
-                    if(thisEntry['key'] === null && thisEntry['status'] === "valid"){
-                        thisEntry['key'] = uuid4();
-                    }
-
                     // save entry to storage and call callback (if any)
                     if(thisEntry['key'] !== null){
                         var dbUpdates = {};
                         dbUpdates[thisEntry['key']] = entry;
-                        console.log("entry!", entry);
                         browser.storage.local.set(dbUpdates).then(function(){
                             if(callback){
                                 callback(entry);
@@ -314,20 +358,40 @@ window.PurgeAlert['TX'] = {
     //////////////////////////////////////
 
     // open the log explorer for an entry
-    "openLogs": function(e){
+    "openLogs": function(e, entryId){
         e.preventDefault();
         console.log("openLogs!"); //TODO
     },
 
     // open the edit interface for an entry
-    "openEdit": function(e){
+    "openEdit": function(e, entryId){
         e.preventDefault();
         console.log("openEdit!"); //TODO
     },
 
+    // open the remove confirmation interface for an entry
+    "openRemove": function(e, entryId){
+        e.preventDefault();
+        window.open(
+            "states/TX/remove_confirm.html?entry=" + encodeURIComponent(entryId),
+            "purge-alert-TX-remove",
+            "width=500,height=500,dependent,menubar=no,toolbar=no,personalbar=no"
+        );
+    },
+
+    // remove an entry
+    "removeEntry": function(entryId, callback){
+        browser.storage.local.remove(entryId).then(function(){
+            if(callback){
+                callback();
+            }
+        });
+    },
+
     // open the edit interface for an entry
-    "checkAgain": function(e){
+    "checkAgain": function(e, entryId){
         e.preventDefault();
         console.log("checkAgain!"); //TODO
     },
+
 }

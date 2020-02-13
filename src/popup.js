@@ -1,6 +1,3 @@
-// global PA object
-window.PurgeAlert = {};
-
 // language translations
 document.querySelector("#popup-title").innerText = browser.i18n.getMessage("popupTitle");
 document.querySelector("#blank-state span").innerText = browser.i18n.getMessage("popupBlankStateMessage");
@@ -13,6 +10,29 @@ document.querySelector("#add-registration").addEventListener("click", function(e
     e.preventDefault();
     window.open("add_registration.html", "purge-alert", "width=500,height=500,dependent,menubar=no,toolbar=no,personalbar=no");
 });
+
+// function for rendering an entry
+function renderEntry(entry){
+
+    // insert the state's logic if not already added
+    if(!document.querySelectorAll("#popup-" + entry['state']).length){
+        var stateScript = document.createElement("script");
+        stateScript.id = "popup-" + entry['state'];
+        stateScript.src = "states/" + entry['state'] + "/state.js";
+        document.querySelector("body").appendChild(stateScript);
+    }
+
+    // call the entry's state's renderPopupEntry()
+    if(window.PurgeAlert[entry['state']]
+    && window.PurgeAlert[entry['state']].renderPopupEntry
+    && document.querySelector("#entry-" + entry['key'])){
+        document.querySelector("#entry-" + entry['key']).innerHTML = window.PurgeAlert[entry['state']].renderPopupEntry(entry);
+    }
+    // the state's script hasn't loaded yet, so wait a bit and try again
+    else {
+        setTimeout(renderEntry, 50, entry);
+    }
+}
 
 // function for updating each entry
 function updateEntry(key){
@@ -32,16 +52,8 @@ function updateEntry(key){
         // found the entry
         if(entry){
 
-            // populate the entry html with latest html from storage
-            document.querySelector("#entry-" + key).innerHTML = entry['popupEntry'];
-
-            // insert the state's logic if not already added
-            if(!document.querySelectorAll("#popup-" + entry['state']).length){
-                var stateScript = document.createElement("script");
-                stateScript.id = "popup-" + entry['state'];
-                stateScript.src = "states/" + entry['state'] + "/state.js";
-                document.querySelector("body").appendChild(stateScript);
-            }
+            // insert the entry's html
+            renderEntry(entry);
 
             // set a timeout to refresh the entry if still pending
             if(entry['status'] === "pending"){
@@ -83,13 +95,19 @@ document.querySelector("body").addEventListener("click", function(e){
     var curTarget = e.target;
     var runFn = curTarget.dataset['run'];
     var runState = curTarget.dataset['state'];
+    var runEntryId = curTarget.dataset['entry'];
     while(curTarget.tagName !== "BODY" && curTarget.parentNode && !runFn){
         curTarget = curTarget.parentNode;
         runFn = curTarget.dataset['run'];
         runState = curTarget.dataset['state'];
+        runEntryId = curTarget.dataset['entry'];
     }
     if(runFn && runState){
-        window.PurgeAlert[runState][runFn](e);
+        var runArgs = [e];
+        if(runEntryId){
+            runArgs.push(runEntryId);
+        }
+        window.PurgeAlert[runState][runFn].apply(this, runArgs);
     }
 });
 

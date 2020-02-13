@@ -1,7 +1,3 @@
-
-// global PA object
-window.PurgeAlert = {};
-
 // render the selected state's add-registration form
 function updateStateSection(){
 

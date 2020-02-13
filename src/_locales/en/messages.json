@@ -73,6 +73,10 @@
         "message": "edit",
         "description": "Link to edit a voter registration entry"
     },
+    "removeLink": {
+        "message": "remove",
+        "description": "Suffix for relative times in the future"
+    },
     "checkAgainLink": {
         "message": "check again",
         "description": "Link to trigger checking a voter registration status again"
@@ -92,6 +96,23 @@
     "timeSinceFuture": {
         "message": "from now",
         "description": "Suffix for relative times in the future"
+    },
+
+    "removeConfirmQuestion": {
+        "message": "Are you sure you want to remove this registration?",
+        "description": "Confirmation text for removing an entry"
+    },
+    "removeConfirmSubmit": {
+        "message": "Yes, remove it",
+        "description": "Button to remove an entry in the remove confirmation dialogue"
+    },
+    "removeConfirmWaiting": {
+        "message": "Removing...",
+        "description": "Pending button text when user submits the removal confirmation button"
+    },
+    "removeConfirmCancel": {
+        "message": "Nevermind",
+        "description": "Button to cancel and close the confirmation dialogue"
     }
 
 }

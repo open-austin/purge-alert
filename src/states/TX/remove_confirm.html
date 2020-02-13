@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="utf-8">
+        <style>
+            body {
+                font-family: sans-serif;
+                font-size: 14px;
+                width: 400px;
+                box-sizing: border-box;
+            }
+            #entries {
+                list-style: circle;
+                padding-left: 0;
+            }
+        </style>
+    </head>
+    <body>
+        <h3 id="confirm-remove">Are you sure you want to remove this registration?</h3>
+        <div>
+            <button id="remove-button">Yes, remove it</button>
+            <a href="#" id="dont-remove">Nevermind</a>
+        </div>
+        <script src="../../assets/browser-polyfill.min.js"></script>
+        <script src="../../assets/common.js"></script>
+        <script src="remove_confirm.js"></script>
+        <script src="state.js"></script>
+    </body>
+</html>

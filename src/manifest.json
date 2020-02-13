@@ -7,7 +7,7 @@
     "background": {
         "scripts": [
             "assets/browser-polyfill.min.js",
-            "assets/utils.js",
+            "assets/common.js",
             "background.js"
         ]
     },

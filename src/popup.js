@@ -26,7 +26,17 @@ function renderEntry(entry){
     if(window.PurgeAlert[entry['state']]
     && window.PurgeAlert[entry['state']].renderPopupEntry
     && document.querySelector("#entry-" + entry['key'])){
-        document.querySelector("#entry-" + entry['key']).innerHTML = window.PurgeAlert[entry['state']].renderPopupEntry(entry);
+
+        // only replace old with new if changed
+        var oldContent = document.querySelector("#entry-" + entry['key']).getAttribute("data-content");
+        var newContent = window.PurgeAlert[entry['state']].renderPopupEntry(entry);
+        if(oldContent !== newContent){
+            // replace the entry
+            document.querySelector("#entry-" + entry['key']).innerHTML = newContent;
+            // also need to set as an attribute for future content comparisons
+            // (since innerHTML can change the content slightly)
+            document.querySelector("#entry-" + entry['key']).setAttribute("data-content", newContent);
+        }
     }
     // the state's script hasn't loaded yet, so wait a bit and try again
     else {
@@ -42,6 +52,7 @@ function updateEntry(key){
     if(!entryLI){
         entryLI = document.createElement("li");
         entryLI.id = "entry-" + key;
+        entryLI.classList.add("entry");
         document.querySelector("#entries").appendChild(entryLI);
     }
 
@@ -49,16 +60,9 @@ function updateEntry(key){
     browser.storage.local.get(key).then(function(entries){
         var entry = entries[key];
 
-        // found the entry
+        // insert the entry's html
         if(entry){
-
-            // insert the entry's html
             renderEntry(entry);
-
-            // set a timeout to refresh the entry if still pending
-            if(entry['status'] === "pending"){
-                setTimeout(updateEntry, 1000, key);
-            }
         }
 
         // couldn't find entry so remove the list item
@@ -70,25 +74,45 @@ function updateEntry(key){
 }
 
 // lookup all the current voter registration entries
-browser.storage.local.get(null).then(function(entries){
+function rebuildEntriesList(){
+    // show rendering state
+    document.querySelector("#rendering").style.display = "block";
 
-    // loop through entries in storage and update its html
-    var numEntries = 0;
-    for(var k in entries){
-        updateEntry(k);
-        numEntries += 1;
-    }
+    browser.storage.local.get(null).then(function(entries){
 
-    // show/hide entries or blank state
-    if(numEntries > 0){
-        document.querySelector("#entries").style.display = "block";
-        document.querySelector("#blank-state").style.display = "none";
-    } else {
-        document.querySelector("#entries").style.display = "none";
-        document.querySelector("#blank-state").style.display = "block";
-    }
+        // loop through entries in storage and update its html
+        var numEntries = 0;
+        for(var k in entries){
+            updateEntry(k);
+            numEntries += 1;
+        }
 
-});
+        // remove any entries that don't exist anymore
+        var entryLIs = document.querySelectorAll(".entry");
+        for(var i = 0; i < entryLIs.length; i++){
+            var entryKey = entryLIs[i].id.replace(/entry-/, "");
+            if(entries[entryKey] === undefined){
+                entryLIs[i].outerHTML = "";
+            }
+        }
+
+        // show/hide entries or blank state
+        if(numEntries > 0){
+            document.querySelector("#entries").style.display = "block";
+            document.querySelector("#blank-state").style.display = "none";
+        } else {
+            document.querySelector("#entries").style.display = "none";
+            document.querySelector("#blank-state").style.display = "block";
+        }
+
+        // hide rendering state
+        document.querySelector("#rendering").style.display = "none";
+
+        // re-render every half-second
+        setTimeout(rebuildEntriesList, 1000);
+    });
+}
+rebuildEntriesList();
 
 // clicks should call the functions listed in the data-run tag
 document.querySelector("body").addEventListener("click", function(e){

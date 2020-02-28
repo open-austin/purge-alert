@@ -13,15 +13,23 @@
                 list-style: circle;
                 padding-left: 0;
             }
+            #rendering {
+                font-size: 6px;
+                color: #eee;
+                position: absolute;
+                right: 0;
+                top: 0;
+            }
         </style>
     </head>
     <body>
+        <span id="rendering">rendering...</span>
         <h1 id="popup-title">
             Purge Alert
         </h1>
         <ul id="entries">
             <!--
-            <li>
+            <li id="entry-123123123..." class="entry">
                 <style>
                     #entry-123-content {
                         background-color: red;

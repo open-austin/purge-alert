@@ -13,10 +13,6 @@
                 margin: 0 18px 18px 18px;
                 line-height: 1.75em;
             }
-            #entries {
-                list-style: circle;
-                padding-left: 0;
-            }
             h1 {
                 text-align: center;
                 color: #362e1b; /* brown */
@@ -25,15 +21,27 @@
                 color: #04606e; /* blue */
                 /*text-decoration: none;*/
             }
+            #entries {
+                list-style: none;
+                padding-left: 0;
+            }
+            #rendering {
+                font-size: 6px;
+                color: #eee;
+                position: absolute;
+                right: 0;
+                top: 0;
+            }
         </style>
     </head>
     <body>
+        <span id="rendering">rendering...</span>
         <h1 id="popup-title">
             Purge Alert
         </h1>
         <ul id="entries">
             <!--
-            <li>
+            <li id="entry-123123123..." class="entry">
                 <style>
                     #entry-123-content {
                         background-color: red;
@@ -91,7 +99,7 @@
             <span id="footer-message">is an open-source project by OpenAustin.</span>
         </footer>
         <script src="assets/browser-polyfill.min.js"></script>
-        <script src="assets/utils.js"></script>
+        <script src="assets/common.js"></script>
         <script src="popup.js"></script>
     </body>
 </html>

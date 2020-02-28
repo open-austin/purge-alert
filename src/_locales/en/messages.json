@@ -36,8 +36,16 @@
 
 
     "addRegTitle": {
-        "message": "is an open-source project by OpenAustin.",
-        "description": "Description of who makes this project"
+        "message": "Lookup Your Voter Registration",
+        "description": "Add registration interface title"
+    },
+    "addRegStateLabel": {
+        "message": "State",
+        "description": "State selection label"
+    },
+    "addRegStateDropdown": {
+        "message": "Choose Your State...",
+        "description": "Placeholder for a state selection dropdown"
     },
     "addRegSubmit": {
         "message": "Submit",
@@ -47,6 +55,62 @@
         "message": "Submitting...",
         "description": "Button text pending state for submitting a new voter registration"
     },
+    "addRegFooterLink": {
+        "message": "Purge Alert",
+        "description": "Project title for the footer link"
+    },
+    "addRegFooterMessage": {
+        "message": "is an open-source project by OpenAustin.",
+        "description": "Description of who makes this project"
+    },
+
+
+    "addRegStateTitle": {
+        "message": "Voter Lookup",
+        "description": "Voter lookup first name field"
+    },
+    "addRegFirstNameLabel": {
+        "message": "First Name",
+        "description": "Voter lookup first name field"
+    },
+    "addRegFirstNamePlaceholder": {
+        "message": "(e.g. Jane)",
+        "description": "Voter lookup first name text input placeholder"
+    },
+    "addRegLastNameLabel": {
+        "message": "Last Name",
+        "description": "Voter lookup last name field"
+    },
+    "addRegLastNamePlaceholder": {
+        "message": "(e.g. Doe)",
+        "description": "Voter lookup last name text input placeholder"
+    },
+    "addRegDateOfBirthLabel": {
+        "message": "Date of Birth",
+        "description": "Voter lookup date of birth field"
+    },
+    "addRegDateOfBirthPlaceholder": {
+        "message": "(e.g. 12/25/1980)",
+        "description": "Voter lookup date of birth text input placeholder"
+    },
+    "addRegCountyLabel": {
+        "message": "County",
+        "description": "Voter lookup date of birth field"
+    },
+    "addRegCountyPlaceholder": {
+        "message": "Choose your county...",
+        "description": "Placeholder for a county selection dropdown"
+    },
+    "addRegZipCodeLabel": {
+        "message": "Zip Code",
+        "description": "Voter lookup date of birth field"
+    },
+    "addRegZipCodePlaceholder": {
+        "message": "(e.g. 12345)",
+        "description": "Voter lookup zip code text input placeholder"
+    },
+
+
     "voterFoundStatus": {
         "message": "Voter found!",
         "description": "Message for when adding a new voter registration was successful"
@@ -73,6 +137,10 @@
         "message": "edit",
         "description": "Link to edit a voter registration entry"
     },
+    "removeLink": {
+        "message": "remove",
+        "description": "Suffix for relative times in the future"
+    },
     "checkAgainLink": {
         "message": "check again",
         "description": "Link to trigger checking a voter registration status again"
@@ -92,6 +160,23 @@
     "timeSinceFuture": {
         "message": "from now",
         "description": "Suffix for relative times in the future"
+    },
+
+    "removeConfirmQuestion": {
+        "message": "Are you sure you want to remove this registration?",
+        "description": "Confirmation text for removing an entry"
+    },
+    "removeConfirmSubmit": {
+        "message": "Yes, remove it",
+        "description": "Button to remove an entry in the remove confirmation dialogue"
+    },
+    "removeConfirmWaiting": {
+        "message": "Removing...",
+        "description": "Pending button text when user submits the removal confirmation button"
+    },
+    "removeConfirmCancel": {
+        "message": "Nevermind",
+        "description": "Button to cancel and close the confirmation dialogue"
     }
 
 }

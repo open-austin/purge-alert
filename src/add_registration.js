@@ -1,6 +1,9 @@
-
-// global PA object
-window.PurgeAlert = {};
+// language translations
+document.querySelector("#add-registration-title").innerText = browser.i18n.getMessage("addRegTitle");
+document.querySelector("#state-dropdown-label").innerText = browser.i18n.getMessage("addRegStateLabel");
+document.querySelector("#state-dropdown-placeholder").innerText = browser.i18n.getMessage("addRegStateDropdown");
+document.querySelector("#footer-link").innerText = browser.i18n.getMessage("popupFooterLink");
+document.querySelector("#footer-message").innerText = browser.i18n.getMessage("popupFooterMessage");
 
 // render the selected state's add-registration form
 function updateStateSection(){

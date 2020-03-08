@@ -3,7 +3,8 @@
  * in the Add Registration dropdown.
  */
 "use strict"
-window.PurgeAlert['TX'] = {
+var PurgeAlert = PurgeAlert || {};
+PurgeAlert['TX'] = {
 
     //////////////////////////////
     // insertRegistrationForm() //
@@ -49,7 +50,7 @@ window.PurgeAlert['TX'] = {
                     </label>
                     <select id="tx-county">
                         <option value="">${browser.i18n.getMessage("addRegCountyPlaceholder")}</option>
-                        ${window.PurgeAlert['TX']['COUNTIES'].map((county) => `
+                        ${PurgeAlert['TX']['COUNTIES'].map((county) => `
                             <option value="${county}">${county}</option>
                         `).join('')}
                     </select>
@@ -159,7 +160,9 @@ window.PurgeAlert['TX'] = {
                     // close the add-registration interface
                     document.querySelector("#tx-close-window").addEventListener("click", function(e){
                         e.preventDefault();
-                        window.close();
+                        browser.windows.getCurrent().then(function(w){
+                            browser.windows.remove(w.id);
+                        });
                     });
 
                 }
@@ -182,8 +185,50 @@ window.PurgeAlert['TX'] = {
                 //TODO
             }
 
-            // run the checker (using the mocked db entry)
-            window.PurgeAlert['TX'].checkRegistration(entry, true, _processResults);
+            // ask for permission if don't already have it
+            browser.permissions.contains({
+                origins: ["*://*.sos.texas.gov/*"],
+            }).then(function(hasPermission){
+
+                // has permission, so run the checker now
+                if(hasPermission){
+                    PurgeAlert['TX'].checkRegistration(entry, _processResults);
+                }
+
+                // doesn't have permission, so ask the user to provide permission
+                else {
+
+                    // show message to prepare the user for the popup
+                    document.querySelector("#tx-results").innerHTML = `
+                        ${browser.i18n.getMessage("stateTexasPermissionAsk")}:
+                        <button id="tx-grant-permission">${browser.i18n.getMessage("addRegPermissionButton")}</button>
+                    `;
+
+                    // ask for permission when the user says to show the prompt
+                    document.querySelector("#tx-grant-permission").addEventListener("click", function(e){
+                        e.preventDefault();
+
+                        // extension permission request
+                        browser.permissions.request({
+                            origins: ["*://*.sos.texas.gov/*"],
+                        }).then(function(givenPermission){
+
+                            // given permission, so check the submitted registration
+                            if(givenPermission){
+                                PurgeAlert['TX'].checkRegistration(entry, _processResults);
+                            }
+
+                            // permission denied, so show the same permission prep
+                            else {
+                                document.querySelector("#tx-results").innerHTML = `
+                                    ${browser.i18n.getMessage("stateTexasPermissionAsk")}:
+                                    <button id="tx-grant-permission">${browser.i18n.getMessage("addRegPermissionButton")}</button>
+                                `;
+                            }
+                        });
+                    });
+                }
+            });
         }
 
         // run lookup and save when form is submitted
@@ -192,7 +237,9 @@ window.PurgeAlert['TX'] = {
         // cancel the lookup and close the window
         document.querySelector("#tx-cancel").addEventListener("click", function(e){
             e.preventDefault();
-            window.close();
+            browser.windows.getCurrent().then(function(w){
+                browser.windows.remove(w.id);
+            });
         });
     },
 
@@ -296,7 +343,7 @@ window.PurgeAlert['TX'] = {
     ////////////////////////////////////////
     // checkRegistration(entry, callback) //
     ////////////////////////////////////////
-    "checkRegistration": function(entry, canAskForUrlPermission, callback){
+    "checkRegistration": function(entry, callback){
 
         // create a new checking run in the history
         var historyItem = {
@@ -309,7 +356,7 @@ window.PurgeAlert['TX'] = {
         entry['stateStorage']['history'].push(historyItem);
 
         // convert county to countyId
-        var countyIndex = window.PurgeAlert['TX']['COUNTIES'].indexOf(entry['stateStorage']['county']);
+        var countyIndex = PurgeAlert['TX']['COUNTIES'].indexOf(entry['stateStorage']['county']);
         var countyId = countyIndex + 1; // it's just the index + 1
 
         // convert ISO date of birth to locale date (e.g. "1950-12-25" --> "12/25/1950")
@@ -415,44 +462,22 @@ window.PurgeAlert['TX'] = {
         }
 
         // can ask for permission, so try it
-        if(canAskForUrlPermission){
-            browser.permissions.request({
-                origins: ["*://*.sos.texas.gov/*"],
-            }).then(function(givenPermission){
+        browser.permissions.contains({
+            origins: ["*://*.sos.texas.gov/*"],
+        }).then(function(hasPermission){
 
-                // given permission, so make the request
-                if(givenPermission){
-                    doLookupRequest(lookupPayload);
-                }
+            // has permission, so make the request
+            if(hasPermission){
+                doLookupRequest(lookupPayload);
+            }
 
-                // permission denied, so log the error
-                else {
-                    //TODO: log the denied permission
-                    console.log("denied permission!"); //TODO: remove
-                }
-            });
-        }
+            // don't have permission, and can't ask for it, so just log an error
+            else {
+                //TODO: log lack of permission error
+                console.log("can't ask for permission!"); //TODO: remove
+            }
 
-        // can't ask for permission, so see if already have it
-        else {
-            browser.permissions.contains({
-                origins: ["*://*.sos.texas.gov/*"],
-            }).then(function(hasPermission){
-
-                // has permission, so make the request
-                if(hasPermission){
-                    doLookupRequest(lookupPayload);
-                }
-
-                // don't have permission, and can't ask for it, so just log an error
-                else {
-                    //TODO: log lack of permission error
-                    console.log("can't ask for permission!"); //TODO: remove
-                }
-
-            });
-        }
-
+        });
     },
 
     //////////////////////////////////////
@@ -502,11 +527,12 @@ window.PurgeAlert['TX'] = {
     // open the remove confirmation interface for an entry
     "openRemove": function(e, entryId){
         e.preventDefault();
-        window.open(
-            "states/TX/remove_confirm.html?entry=" + encodeURIComponent(entryId),
-            "purge-alert-TX-remove",
-            "width=500,height=500,dependent,menubar=no,toolbar=no,personalbar=no"
-        );
+        browser.windows.create({
+            "type": "popup",
+            "url": "states/TX/remove_confirm.html?entry=" + encodeURIComponent(entryId),
+            "width": 300,
+            "height": 200,
+        });
     },
 
     // remove an entry

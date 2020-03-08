@@ -1,3 +1,6 @@
+// global purge alert object
+var PurgeAlert = PurgeAlert || {};
+
 // language translations
 document.querySelector("#add-registration-title").innerText = browser.i18n.getMessage("addRegTitle");
 document.querySelector("#state-dropdown-label").innerText = browser.i18n.getMessage("addRegStateLabel");
@@ -21,8 +24,10 @@ function updateStateSection(){
         }
 
         // call the selected state's insertRegistrationForm()
-        if(window.PurgeAlert[state] && window.PurgeAlert[state].insertRegistrationForm){
-            window.PurgeAlert[state].insertRegistrationForm();
+        if(PurgeAlert
+        && PurgeAlert[state]
+        && PurgeAlert[state].insertRegistrationForm){
+            PurgeAlert[state].insertRegistrationForm();
         }
         // the state's script hasn't loaded yet, so wait a bit and try again
         else {

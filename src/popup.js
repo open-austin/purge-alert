@@ -1,3 +1,6 @@
+// global purge alert object
+var PurgeAlert = PurgeAlert || {};
+
 // language translations
 document.querySelector("#popup-title").innerText = browser.i18n.getMessage("popupTitle");
 document.querySelector("#blank-state span").innerText = browser.i18n.getMessage("popupBlankStateMessage");
@@ -8,7 +11,12 @@ document.querySelector("#footer-message").innerText = browser.i18n.getMessage("p
 // add registration click listener
 document.querySelector("#add-registration").addEventListener("click", function(e){
     e.preventDefault();
-    window.open("add_registration.html", "purge-alert", "width=500,height=500,dependent,menubar=no,toolbar=no,personalbar=no");
+    browser.windows.create({
+        "type": "popup",
+        "url": "add_registration.html",
+        "width": 500,
+        "height": 500,
+    });
 });
 
 // function for rendering an entry
@@ -23,13 +31,14 @@ function renderEntry(entry){
     }
 
     // call the entry's state's renderPopupEntry()
-    if(window.PurgeAlert[entry['state']]
-    && window.PurgeAlert[entry['state']].renderPopupEntry
+    if(PurgeAlert
+    && PurgeAlert[entry['state']]
+    && PurgeAlert[entry['state']].renderPopupEntry
     && document.querySelector("#entry-" + entry['key'])){
 
         // only replace old with new if changed
         var oldContent = document.querySelector("#entry-" + entry['key']).getAttribute("data-content");
-        var newContent = window.PurgeAlert[entry['state']].renderPopupEntry(entry);
+        var newContent = PurgeAlert[entry['state']].renderPopupEntry(entry);
         if(oldContent !== newContent){
             // replace the entry
             document.querySelector("#entry-" + entry['key']).innerHTML = newContent;
@@ -109,7 +118,7 @@ function rebuildEntriesList(){
         document.querySelector("#rendering").style.display = "none";
 
         // re-render every half-second
-        setTimeout(rebuildEntriesList, 1000);
+        setTimeout(rebuildEntriesList, 500);
     });
 }
 rebuildEntriesList();
@@ -131,7 +140,7 @@ document.querySelector("body").addEventListener("click", function(e){
         if(runEntryId){
             runArgs.push(runEntryId);
         }
-        window.PurgeAlert[runState][runFn].apply(this, runArgs);
+        PurgeAlert[runState][runFn].apply(this, runArgs);
     }
 });
 

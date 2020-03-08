@@ -1,3 +1,6 @@
+// global purge alert object
+var PurgeAlert = PurgeAlert || {};
+
 // language translations
 document.querySelector("#confirm-remove").innerText = browser.i18n.getMessage("removeConfirmQuestion");
 document.querySelector("#remove-button").innerText = browser.i18n.getMessage("removeConfirmSubmit");
@@ -13,13 +16,17 @@ document.querySelector("#remove-button").addEventListener("click", function(e){
 
     // call the state's remove entry
     var entryId = (new URL(window.location.href)).searchParams.get("entry");
-    window.PurgeAlert['TX']['removeEntry'](entryId, function(){
-        window.close();
+    PurgeAlert['TX']['removeEntry'](entryId, function(){
+        browser.windows.getCurrent().then(function(w){
+            browser.windows.remove(w.id);
+        });
     });
 });
 
 // don't remove the entry
 document.querySelector("#dont-remove").addEventListener("click", function(e){
     e.preventDefault();
-    window.close();
+    browser.windows.getCurrent().then(function(w){
+        browser.windows.remove(w.id);
+    });
 });

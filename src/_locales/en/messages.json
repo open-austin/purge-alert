@@ -109,6 +109,20 @@
         "message": "(e.g. 12345)",
         "description": "Voter lookup zip code text input placeholder"
     },
+    "addRegPermissionButton": {
+        "message": "Show Permission Prompt",
+        "description": "Button text for showing the permission prompt"
+    },
+    "addRegPermissionSubmitMessage": {
+        "message": "Checking...",
+        "description": "Button text for showing the permission prompt"
+    },
+
+
+    "stateTexasPermissionAsk": {
+        "message": "We need your permission to access the Texas Secretary of State's website (sos.texas.gov)",
+        "description": "Ask the user to grant permission to make a cross-origin request"
+    },
 
 
     "voterFoundStatus": {

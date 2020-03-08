@@ -141,7 +141,6 @@ PurgeAlert['TX'] = {
 
             // done trying to look up the voter
             function _processResults(entry){
-                console.log("_processResults", entry);
 
                 // get what voters were found (assume the lookup
                 var foundVoters = entry['stateStorage']['history'][entry['stateStorage']['history'].length - 1]['foundVoters'];
@@ -265,14 +264,6 @@ PurgeAlert['TX'] = {
             `;// TODO: make this better
         }
 
-        // locale-specific date
-        var updated = new Date(historyItem['created']);
-        var updatedStr = updated.toLocaleDateString(browser.i18n.LanguageCode, {
-            year: "numeric",
-            month: "numeric",
-            day: "numeric"
-        })
-
         // zero voters found in the last check
         if(historyItem['foundVoters'].length === 0){
             var renderedHTML = `
@@ -287,6 +278,53 @@ PurgeAlert['TX'] = {
                 <b>Multiple matching voter registrations found!</b>
             `;// TODO: make this better
             return renderedHTML;
+        }
+
+        // status html default (should always be overwritten)
+        var statusHtml = "Unknown status (if you see this, email us!)";
+
+        // last update is still pending, so show a pending status
+        if(entry['status'] === "pending"){
+            statusHtml = `
+                ${historyItem['checkingMessage']}
+            `;
+        }
+
+        // last update was successful, so show when that check was
+        else if(entry['status'] === "valid"){
+            var updatedDate = (new Date(historyItem['created'])).toLocaleDateString(browser.i18n.LanguageCode, {
+                "year": "numeric",
+                "month": "numeric",
+                "day": "numeric",
+            });
+            statusHtml = `
+                ${browser.i18n.getMessage("lastUpdateValid").replace("[DATE]", updatedDate)}
+                <a href="#" data-run="checkAgain" data-state="TX" data-entry="${entry['key']}"
+                    >${browser.i18n.getMessage("checkAgainLink")}</a>
+            `;
+        }
+
+        // last update didn't find anything (possible purge!)
+        else if(entry['status'] === "empty"){
+            var updatedDate = (new Date(historyItem['created'])).toLocaleDateString(browser.i18n.LanguageCode, {
+                "year": "numeric",
+                "month": "numeric",
+                "day": "numeric",
+            });
+            statusHtml = `
+                ${browser.i18n.getMessage("lastUpdateEmpty").replace("[DATE]", updatedDate)}
+                <a href="#" data-run="openEdit" data-state="TX" data-entry="${entry['key']}"
+                    >${browser.i18n.getMessage("lastUpdateEmptyLink")}</a>
+            `;
+        }
+
+        // last update needs attention for some reason
+        else if(entry['status'] === "needs-attention"){
+            statusHtml = `
+                ${browser.i18n.getMessage("lastUpdateNeedsAttention")}
+                <a href="#" data-run="openEdit" data-state="TX" data-entry="${entry['key']}"
+                    >${browser.i18n.getMessage("lastUpdateNeedsAttentionLink")}</a>
+            `;
         }
 
         // found one voter's registration, hooray!
@@ -329,10 +367,7 @@ PurgeAlert['TX'] = {
                         ${browser.i18n.getMessage("regStatusValid")}
                     </div>
                     <div class="updates">
-                        <span>${browser.i18n.getMessage("lastUpdatedPrefix")}</span>
-                        <span>${updatedStr}</span>
-                        <a href="#" data-run="checkAgain" data-state="TX" data-entry="${entry['key']}"
-                            >${browser.i18n.getMessage("checkAgainLink")}</a>
+                        ${statusHtml}
                     </div>
                 </div>
             </div>
@@ -427,6 +462,7 @@ PurgeAlert['TX'] = {
                     // update the status based on the voter lookup results
                     if(historyItem['foundVoters'].length === 1){
                         entry['status'] = "valid";
+                        historyItem['checkingMessage'] = "Found 1 voter!";
 
                         // assign a uuid if a new entry
                         if(entry['key'] === null){
@@ -436,10 +472,12 @@ PurgeAlert['TX'] = {
                     // multiple voters found
                     else if(historyItem['foundVoters'].length > 1){
                         entry['status'] = "needs-attention";
+                        historyItem['checkingMessage'] = "Found multiple voters!";
                     }
                     // no voter found
                     else if(historyItem['foundVoters'].length === 0){
                         entry['status'] = "empty";
+                        historyItem['checkingMessage'] = "Found no voters :(";
                     }
 
                     // save entry to storage and call callback (if any)
@@ -447,6 +485,7 @@ PurgeAlert['TX'] = {
                         var dbUpdates = {};
                         dbUpdates[entry['key']] = entry;
                         browser.storage.local.set(dbUpdates).then(function(){
+                            // done saving to storage, so call the callback
                             if(callback){
                                 callback(entry);
                             }
@@ -473,8 +512,24 @@ PurgeAlert['TX'] = {
 
             // don't have permission, and can't ask for it, so just log an error
             else {
-                //TODO: log lack of permission error
-                console.log("can't ask for permission!"); //TODO: remove
+                // log the error
+                entry['status'] = "needs-attention";
+                historyItem['checkingMessage'] = "Missing browser permission";
+                historyItem['error'] = {
+                    "type": "permission",
+                    "description": "We didn't have the browser's permission to check the Texas Secretary of State's website (sos.texas.gov).",
+                };
+                // save to storage
+                if(entry['key'] !== null){
+                    var dbUpdates = {};
+                    dbUpdates[entry['key']] = entry;
+                    browser.storage.local.set(dbUpdates).then(function(){
+                        // done saving to storage, so call the callback
+                        if(callback){
+                            callback(entry);
+                        }
+                    });
+                }
             }
 
         });
@@ -547,7 +602,29 @@ PurgeAlert['TX'] = {
     // open the edit interface for an entry
     "checkAgain": function(e, entryId){
         e.preventDefault();
-        console.log("checkAgain!"); //TODO
+
+        // get the entry from storage
+        browser.storage.local.get(entryId).then(function(entries){
+
+            // set entry as pending and save it to storage
+            var entry = entries[entryId];
+            entry['status'] = "pending";
+            var dbUpdates = {};
+            dbUpdates[entryId] = entry;
+            browser.storage.local.set(dbUpdates).then(function(){
+
+                // put checking state
+                var entryDiv = document.querySelector("#entry-" + entryId);
+                entryDiv.querySelector(".updates").innerHTML = browser.i18n.getMessage("checkAgainSubmit");
+
+                // clear the entry diff cache so it gets reloaded
+                entryDiv.removeAttribute("data-content");
+
+                // kickoff checking the registration again
+                PurgeAlert['TX'].checkRegistration(entry);
+            });
+
+        });
     },
 
 }

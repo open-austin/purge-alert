@@ -159,13 +159,37 @@
         "message": "check again",
         "description": "Link to trigger checking a voter registration status again"
     },
+    "checkAgainSubmit": {
+        "message": "Checking...",
+        "description": "The status message that displays when a user asks to check the voter registration again"
+    },
     "regStatusValid": {
         "message": "valid registration",
         "description": "Status message when a voter registeration is good"
     },
-    "lastUpdatedPrefix": {
-        "message": "Last updated",
+    "lastUpdateValid": {
+        "message": "Last updated [DATE]",
         "description": "Prefix for when an entry was last updated"
+    },
+    "lastUpdateEmpty": {
+        "message": "The most recent check on [DATE] didn't find this voter!",
+        "description": "Error message for when couldn't find the entry's voter on the voter rolls"
+    },
+    "lastUpdateEmptyLink": {
+        "message": "Try to fix",
+        "description": "Link to edit a voter registration entry"
+    },
+    "lastUpdateNeedsAttention": {
+        "message": "This entry needs your attention!",
+        "description": "Error message for when the user needs to resolve some issue with their entry"
+    },
+    "lastUpdateNeedsAttentionLink": {
+        "message": "See what's wrong",
+        "description": "Error message for when the user needs to resolve some issue with their entry"
+    },
+    "editLink": {
+        "message": "edit",
+        "description": "Link to edit a voter registration entry"
     },
     "timeSincePast": {
         "message": "ago",

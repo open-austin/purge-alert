@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="utf-8">
+        <style>
+            body {
+                font-family: sans-serif;
+                font-size: 14px;
+                box-sizing: border-box;
+            }
+        </style>
+    </head>
+    <body>
+        <div id="latest-status">
+        </div>
+        <form id="edit-form">
+            <div>
+                <label id="first-name-label" for="first-name"></label>
+                <input id="first-name" placeholder="">
+            </div>
+            <div>
+                <label id="last-name-label" for="last-name"></label>
+                <input id="last-name" placeholder="">
+            </div>
+            <div>
+                <label id="date-of-birth-label" for="tx-date-of-birth"></label>
+                <input id="date-of-birth" type="date" min="" max="">
+            </div>
+            <div>
+                <label id="county-label" for="county"></label>
+                <select id="county"></select>
+            </div>
+            <div>
+                <label id="zip-code-label" for="zip-code"></label>
+                <input id="zip-code" placeholder="">
+            </div>
+            <div id="submit-wrapper">
+                <input id="submit-button" type="submit" value="">
+                <a id="cancel" href="#"></a>
+            </div>
+        </form>
+        <div id="results">
+        </div>
+        <script src="../../assets/browser-polyfill.min.js"></script>
+        <script src="../../assets/common.js"></script>
+        <script src="state.js"></script>
+        <script src="edit_entry.js"></script>
+    </body>
+</html>

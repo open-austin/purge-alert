@@ -1,6 +1,3 @@
-// global purge alert object
-var PurgeAlert = PurgeAlert || {};
-
 // language translations
 document.querySelector("#confirm-remove").innerText = browser.i18n.getMessage("removeConfirmQuestion");
 document.querySelector("#remove-button").innerText = browser.i18n.getMessage("removeConfirmSubmit");

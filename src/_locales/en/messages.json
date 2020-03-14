@@ -89,10 +89,6 @@
         "message": "Date of Birth",
         "description": "Voter lookup date of birth field"
     },
-    "addRegDateOfBirthPlaceholder": {
-        "message": "(e.g. 12/25/1980)",
-        "description": "Voter lookup date of birth text input placeholder"
-    },
     "addRegCountyLabel": {
         "message": "County",
         "description": "Voter lookup date of birth field"
@@ -109,37 +105,45 @@
         "message": "(e.g. 12345)",
         "description": "Voter lookup zip code text input placeholder"
     },
-    "addRegPermissionButton": {
-        "message": "Show Permission Prompt",
-        "description": "Button text for showing the permission prompt"
-    },
     "addRegPermissionSubmitMessage": {
         "message": "Checking...",
         "description": "Button text for showing the permission prompt"
     },
+    "addRegSuccess": {
+        "message": "Voter found!",
+        "description": "Message for when adding a new voter registration was successful"
+    },
+    "addRegCloseWindow": {
+        "message": "Close this window",
+        "description": "Link telling the user they can close the add-registration window when done"
+    },
 
 
+    "askPermissionButton": {
+        "message": "Show Permission Prompt",
+        "description": "Button text for showing the permission prompt"
+    },
     "stateTexasPermissionAsk": {
         "message": "We need your permission to access the Texas Secretary of State's website (sos.texas.gov)",
         "description": "Ask the user to grant permission to make a cross-origin request"
     },
 
 
-    "voterFoundStatus": {
-        "message": "Voter found!",
-        "description": "Message for when adding a new voter registration was successful"
-    },
-    "voterFoundCloseWindow": {
-        "message": "Close this window",
-        "description": "Link telling the user they can close the add-registration window when done"
-    },
-    "multipleVotersError": {
-        "message": "Multiple voters found.",
-        "description": "Error message for when found more than one voter that matches the lookup"
-    },
     "voterNotFoundError": {
         "message": "No voter found.",
         "description": "Error message for when found no voters that matches the lookup"
+    },
+    "blockedByCloudflare": {
+        "message": "Lookup blocked by Cloudflare (this is usually because you are using a VPN)",
+        "description": "Error message for when lookup website is using Cloudflare and they block the request"
+    },
+    "voterLookupError": {
+        "message": "Something unexpected went wrong",
+        "description": "Error message for when an unhandled error happened during lookup"
+    },
+    "needPermissionError": {
+        "message": "Need to provide permission again",
+        "description": "Error message for when lookup doesn't have correct permissions to lookup the voter registration"
     },
 
 
@@ -199,6 +203,65 @@
         "message": "from now",
         "description": "Suffix for relative times in the future"
     },
+
+
+    "editEntryFirstNameLabel": {
+        "message": "First Name",
+        "description": "Voter lookup first name field"
+    },
+    "editEntryFirstNamePlaceholder": {
+        "message": "(e.g. Jane)",
+        "description": "Voter lookup first name text input placeholder"
+    },
+    "editEntryLastNameLabel": {
+        "message": "Last Name",
+        "description": "Voter lookup last name field"
+    },
+    "editEntryLastNamePlaceholder": {
+        "message": "(e.g. Doe)",
+        "description": "Voter lookup last name text input placeholder"
+    },
+    "editEntryDateOfBirthLabel": {
+        "message": "Date of Birth",
+        "description": "Voter lookup date of birth field"
+    },
+    "editEntryDateOfBirthPlaceholder": {
+        "message": "(e.g. 12/25/1980)",
+        "description": "Voter lookup date of birth text input placeholder"
+    },
+    "editEntryCountyLabel": {
+        "message": "County",
+        "description": "Voter lookup date of birth field"
+    },
+    "editEntryZipCodeLabel": {
+        "message": "Zip Code",
+        "description": "Voter lookup date of birth field"
+    },
+    "editEntryZipCodePlaceholder": {
+        "message": "(e.g. 12345)",
+        "description": "Voter lookup zip code text input placeholder"
+    },
+    "editEntryUpdateButton": {
+        "message": "Check Registration",
+        "description": "Submit button to re-check and update an existing entry"
+    },
+    "editEntryUpdating": {
+        "message": "Checking...",
+        "description": "Button text pending state for updating an existing entry"
+    },
+    "editEntryCancelButton": {
+        "message": "Nevermind",
+        "description": "Don't edit and entry and close the window"
+    },
+    "editEntrySuccess": {
+        "message": "Voter found!",
+        "description": "Button text pending state for updating an existing entry"
+    },
+    "editEntryCloseWindow": {
+        "message": "Close this window",
+        "description": "Button text pending state for updating an existing entry"
+    },
+
 
     "removeConfirmQuestion": {
         "message": "Are you sure you want to remove this registration?",

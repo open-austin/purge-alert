@@ -85,43 +85,60 @@ PurgeAlert['TX'] = {
             var entry = {
                 "key": null,
                 "created": (new Date).toISOString(),
-                "status": "pending",
-                "popupEntry": "Entry: sadfasdfasdlfjasdlkfasldf",
+                "status": "pending", // "pending|valid|empty|needs-attention"
                 "state": "TX",
                 "stateStorage": {
-                    "firstName": document.querySelector("#tx-first-name").value,
-                    "lastName": document.querySelector("#tx-last-name").value,
-                    "dateOfBirth": document.querySelector("#tx-date-of-birth").value,
-                    "county": document.querySelector("#tx-county").value,
-                    "zipCode": document.querySelector("#tx-zip-code").value,
-                    "vuid": null,
+                    "lookup": null, //{
+                    //    "firstName": "Jane",
+                    //    "lastName": "Doe",
+                    //    "dateOfBirth": "1980-01-01",
+                    //    "county": "TRAVIS",
+                    //    "zipCode": "12345",
+                    //},
+                    "voter": null, //{
+                    //    "name": "JANE ANN DOE",
+                    //    "address": ["123 MAIN ST", "AUSTIN TX 77777"],
+                    //    "validFrom": "2020-01-01",
+                    //    "dateRegistered": "2018-10-18",
+                    //    "voterStatus": "ACTIVE",
+                    //    "county": "TRAVIS",
+                    //    "precinct": "200",
+                    //    "vuid": "123456789",
+                    //},
                     "history": [
-                        //{
-                        //    "type": "runChecking",
-                        //    "created": "2020-01-01T00:00:00+00:00",
-                        //    "checkingMessage": "",
-                        //    "error": {...},
-                        //    "foundVoters": [
-                        //        {
-                        //            "name": "JANE ANN DOE",
-                        //            "address": ["123 MAIN ST", "AUSTIN TX 77777"],
-                        //            "validFrom": "2020-01-01",
-                        //            "dateRegistered": "2018-10-18",
-                        //            "voterStatus": "ACTIVE",
-                        //            "county": "TRAVIS",
-                        //            "precinct": "200",
-                        //            "vuid": "123456789",
-                        //        },
-                        //        ...
-                        //    ],
-                        //},
-                    ],
+                        {
+                            "type": "runChecking",
+                            "created": (new Date).toISOString(),
+                            "checkingMessage": "Checking...", // TODO: i18n
+                            "lookup": {
+                                "firstName": document.querySelector("#tx-first-name").value,
+                                "lastName": document.querySelector("#tx-last-name").value,
+                                "dateOfBirth": document.querySelector("#tx-date-of-birth").value,
+                                "county": document.querySelector("#tx-county").value,
+                                "zipCode": document.querySelector("#tx-zip-code").value,
+                            },
+                            "result": null, // "success|no_voter_found|need_permission|blocked_by_cloudflare|other_error"
+                            "error": {
+                            //    TODO: figure out what should be stored in here
+                            },
+                            "voter": {
+                            //    "name": "JANE ANN DOE",
+                            //    "address": ["123 MAIN ST", "AUSTIN TX 77777"],
+                            //    "validFrom": "2020-01-01",
+                            //    "dateRegistered": "2018-10-18",
+                            //    "voterStatus": "ACTIVE",
+                            //    "county": "TRAVIS",
+                            //    "precinct": "200",
+                            //    "vuid": "123456789",
+                            },
+                        },
+                    ]
                 },
             }
 
             // status updates while running
-            var intervalID = setInterval(function(){
-
+            var intervalID = null;
+            function _monitorStatus(){
                 // stop monitoring when no longer listening
                 if(entry['status'] !== "pending"){
                     clearInterval(intervalID);
@@ -136,52 +153,71 @@ PurgeAlert['TX'] = {
                         break;
                     }
                 }
-
-            }, 100);
+            }
 
             // done trying to look up the voter
             function _processResults(entry){
 
                 // get what voters were found (assume the lookup
-                var foundVoters = entry['stateStorage']['history'][entry['stateStorage']['history'].length - 1]['foundVoters'];
+                var result = entry['stateStorage']['history'][entry['stateStorage']['history'].length - 1]['result'];
+                var voter = entry['stateStorage']['history'][entry['stateStorage']['history'].length - 1]['voter'];
 
                 // found the voter, so save the db entry and close the window
-                if(foundVoters.length === 1){
+                if(result === "success"){
+                    var dbUpdates = {};
+                    entry['key'] = uuid4();
+                    dbUpdates[entry['key']] = entry;
+                    browser.storage.local.set(dbUpdates).then(function(){
 
-                    // change pending state to saving
-                    document.querySelector("#tx-results").innerHTML = `
-                        <span id="tx-voter-found">Voter found!</span>
-                        <a id="tx-close-window" href="#">Close this window</a>
-                    `;
-                    document.querySelector("#tx-voter-found").innerText = browser.i18n.getMessage("voterFoundStatus");
-                    document.querySelector("#tx-close-window").innerText = browser.i18n.getMessage("voterFoundCloseWindow");
+                        // change pending state to saving
+                        document.querySelector("#tx-results").innerHTML = `
+                            <span id="tx-voter-found">Voter found!</span>
+                            <a id="tx-close-window" href="#">Close this window</a>
+                        `;
+                        document.querySelector("#tx-voter-found").innerText = browser.i18n.getMessage("addRegSuccess");
+                        document.querySelector("#tx-close-window").innerText = browser.i18n.getMessage("addRegCloseWindow");
 
-                    // close the add-registration interface
-                    document.querySelector("#tx-close-window").addEventListener("click", function(e){
-                        e.preventDefault();
-                        browser.windows.getCurrent().then(function(w){
-                            browser.windows.remove(w.id);
+                        // close the add-registration interface
+                        document.querySelector("#tx-close-window").addEventListener("click", function(e){
+                            e.preventDefault();
+                            browser.windows.getCurrent().then(function(w){
+                                browser.windows.remove(w.id);
+                            });
                         });
+
                     });
-
-                }
-
-                // found multiple voters, so ask to select the correct one
-                else if(foundVoters.length > 1){
-                    document.querySelector("#tx-results").innerHTML = browser.i18n.getMessage("multipleVotersError");
-                    //TODO
                 }
 
                 // couldn't find a matching voter, so ask to correct and retry
-                else if(foundVoters.length === 0){
+                else if(result === "no_voter_found"){
                     document.querySelector("#tx-results").innerHTML = browser.i18n.getMessage("voterNotFoundError");
                     document.querySelector("#tx-submit-button").value = browser.i18n.getMessage("addRegSubmit");
                     document.querySelector("#tx-submit-button").removeAttribute("disabled");
-                    //TODO
                 }
 
-                // ran into another type of error, so package up a debug zip and offer to submit it as a bug
-                //TODO
+                // request blocked by cloudflare >:(
+                else if(result === "blocked_by_cloudflare"){
+                    document.querySelector("#tx-results").innerHTML = browser.i18n.getMessage("blockedByCloudflare");
+                    document.querySelector("#tx-submit-button").value = browser.i18n.getMessage("addRegSubmit");
+                    document.querySelector("#tx-submit-button").removeAttribute("disabled");
+                    //TODO: add recovery options
+                }
+
+                // didn't have permission to access the TX SOS site >:(
+                else if(result === "need_permission"){
+                    document.querySelector("#tx-results").innerHTML = browser.i18n.getMessage("needPermissionError");
+                    document.querySelector("#tx-submit-button").value = browser.i18n.getMessage("addRegSubmit");
+                    document.querySelector("#tx-submit-button").removeAttribute("disabled");
+                    //TODO: add recovery options
+                }
+
+                // some other error occurred
+                else if(result === "other_error"){
+                    document.querySelector("#tx-results").innerHTML = browser.i18n.getMessage("voterLookupError");
+                    document.querySelector("#tx-submit-button").value = browser.i18n.getMessage("addRegSubmit");
+                    document.querySelector("#tx-submit-button").removeAttribute("disabled");
+                    //TODO: add retry/debug/support options
+                }
             }
 
             // ask for permission if don't already have it
@@ -192,6 +228,7 @@ PurgeAlert['TX'] = {
                 // has permission, so run the checker now
                 if(hasPermission){
                     PurgeAlert['TX'].checkRegistration(entry, _processResults);
+                    intervalID = setInterval(_monitorStatus, 100);
                 }
 
                 // doesn't have permission, so ask the user to provide permission
@@ -200,7 +237,7 @@ PurgeAlert['TX'] = {
                     // show message to prepare the user for the popup
                     document.querySelector("#tx-results").innerHTML = `
                         ${browser.i18n.getMessage("stateTexasPermissionAsk")}:
-                        <button id="tx-grant-permission">${browser.i18n.getMessage("addRegPermissionButton")}</button>
+                        <button id="tx-grant-permission">${browser.i18n.getMessage("askPermissionButton")}</button>
                     `;
 
                     // ask for permission when the user says to show the prompt
@@ -215,13 +252,14 @@ PurgeAlert['TX'] = {
                             // given permission, so check the submitted registration
                             if(givenPermission){
                                 PurgeAlert['TX'].checkRegistration(entry, _processResults);
+                                intervalID = setInterval(_monitorStatus, 100);
                             }
 
                             // permission denied, so show the same permission prep
                             else {
                                 document.querySelector("#tx-results").innerHTML = `
                                     ${browser.i18n.getMessage("stateTexasPermissionAsk")}:
-                                    <button id="tx-grant-permission">${browser.i18n.getMessage("addRegPermissionButton")}</button>
+                                    <button id="tx-grant-permission">${browser.i18n.getMessage("askPermissionButton")}</button>
                                 `;
                             }
                         });
@@ -247,6 +285,9 @@ PurgeAlert['TX'] = {
     //////////////////////////////
     "renderPopupEntry": function(entry){
 
+        // get entry's current voter details
+        var voter = entry['stateStorage']['voter'];
+
         // get entry's most recent check in its history
         var historyItem = undefined;
         for(var i = (entry['stateStorage']['history'].length - 1); i >= 0; i--){
@@ -257,34 +298,18 @@ PurgeAlert['TX'] = {
             }
         }
 
-        // no checks, so show blank state
-        if(historyItem === undefined){
-            return `
-                <b>No checks yet</b>
-            `;// TODO: make this better
-        }
-
-        // zero voters found in the last check
-        if(historyItem['foundVoters'].length === 0){
-            var renderedHTML = `
-                <b>No voter registration found!</b>
-            `;// TODO: make this better
-            return renderedHTML;
-        }
-
-        // more than one voters found in the last check
-        if(historyItem['foundVoters'].length >= 2){
-            var renderedHTML = `
-                <b>Multiple matching voter registrations found!</b>
-            `;// TODO: make this better
-            return renderedHTML;
-        }
-
         // status html default (should always be overwritten)
         var statusHtml = "Unknown status (if you see this, email us!)";
 
+        // no history items
+        if(historyItem === undefined){
+            statusHtml = `
+                No checks yet.
+            `;
+        }
+
         // last update is still pending, so show a pending status
-        if(entry['status'] === "pending"){
+        else if(entry['status'] === "pending"){
             statusHtml = `
                 ${historyItem['checkingMessage']}
             `;
@@ -352,15 +377,15 @@ PurgeAlert['TX'] = {
                             >${browser.i18n.getMessage("removeLink")}</a>
                     </div>
                     <h4 class="name">
-                        TX - ${historyItem['foundVoters'][0]['name']}
+                        TX - ${voter['name']}
                         <a href="#" data-run="openEdit" data-state="TX" data-entry="${entry['key']}"
                             >${browser.i18n.getMessage("editLink")}</a>
                     </h4>
                     <div class="address">
-                        ${historyItem['foundVoters'][0]['address'].join(", ")}
+                        ${voter['address'].join(", ")}
                     </div>
                     <div class="vuid">
-                        VUID #: ${historyItem['foundVoters'][0]['vuid']}
+                        VUID #: ${voter['vuid']}
                     </div>
                     <div class="status">
                         <b class="checkmark">✓</b>
@@ -380,36 +405,29 @@ PurgeAlert['TX'] = {
     ////////////////////////////////////////
     "checkRegistration": function(entry, callback){
 
-        // create a new checking run in the history
-        var historyItem = {
-            "type": "runChecking",
-            "created": (new Date).toISOString(),
-            "checkingMessage": "Checking...",
-            "error": {},
-            "foundVoters": [],
-        }
-        entry['stateStorage']['history'].push(historyItem);
+        // assume the last history item for this checkRegistration call
+        var historyItem = entry['stateStorage']['history'][entry['stateStorage']['history'].length - 1];
 
         // convert county to countyId
-        var countyIndex = PurgeAlert['TX']['COUNTIES'].indexOf(entry['stateStorage']['county']);
+        var countyIndex = PurgeAlert['TX']['COUNTIES'].indexOf(historyItem['lookup']['county']);
         var countyId = countyIndex + 1; // it's just the index + 1
 
         // convert ISO date of birth to locale date (e.g. "1950-12-25" --> "12/25/1950")
         var dateOfBirth = "" +
-            entry['stateStorage']['dateOfBirth'].substring(5, 7) + "/" +
-            entry['stateStorage']['dateOfBirth'].substring(8, 10) + "/" +
-            entry['stateStorage']['dateOfBirth'].substring(0, 4);
+            historyItem['lookup']['dateOfBirth'].substring(5, 7) + "/" +
+            historyItem['lookup']['dateOfBirth'].substring(8, 10) + "/" +
+            historyItem['lookup']['dateOfBirth'].substring(0, 4);
 
         // build POST request body based on voter details in the entry
         // TODO: support other types of lookups
         var lookupPayload = "" +
             "selType=" + encodeURIComponent("lfcd") +
-            "&firstName=" + encodeURIComponent(entry['stateStorage']['firstName']) +
-            "&lastName=" + encodeURIComponent(entry['stateStorage']['lastName']) +
+            "&firstName=" + encodeURIComponent(historyItem['lookup']['firstName']) +
+            "&lastName=" + encodeURIComponent(historyItem['lookup']['lastName']) +
             "&nmSuffix=" +
             "&county=" + encodeURIComponent(countyId) +
             "&dob=" + encodeURIComponent(dateOfBirth) +
-            "&adZip5=" + encodeURIComponent(entry['stateStorage']['zipCode']) +
+            "&adZip5=" + encodeURIComponent(historyItem['lookup']['zipCode']) +
             "&idVoter=" +
             "&vuidDob=" +
             "&idTdl=" +
@@ -422,117 +440,88 @@ PurgeAlert['TX'] = {
             "&currentSearch=";
 
         // voter lookup request function
-        function doLookupRequest(thisLookupPayload){
-            var lookupXHR = new XMLHttpRequest();
-            lookupXHR.open("POST", "https://teamrv-mvp.sos.texas.gov/MVP/voterDetails.do");
-            lookupXHR.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
-            lookupXHR.onreadystatechange = function(){
-                // done with the request
-                if(lookupXHR.readyState === XMLHttpRequest.DONE){
+        var lookupXHR = new XMLHttpRequest();
+        lookupXHR.open("POST", "https://teamrv-mvp.sos.texas.gov/MVP/voterDetails.do");
+        lookupXHR.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
+        lookupXHR.onreadystatechange = function(){
+            // done with the request
+            if(lookupXHR.readyState === XMLHttpRequest.DONE){
 
-                    // found a voter
-                    var voterSection = /id="fullNameSpan"([\s\S]+?)<\/td>/mg;
-                    var voterMatch = voterSection.exec(lookupXHR.responseText);
-                    if(voterMatch){
-                        var voterName = voterMatch[1].match(/>Name: ([^<]+)<\/span><br>/);
-                        var voterAddress = voterMatch[1].match(/^Address: ([\s\S]+?)<\/span>/m);
-                        var voterValidFrom = voterMatch[1].match(/<span>Valid From: ([0-9]{2})\/([0-9]{2})\/([0-9]{4})<\/span><br>/);
-                        var voterDateRegistered = voterMatch[1].match(/<span>Effective Date of Registration: ([0-9]{2})\/([0-9]{2})\/([0-9]{4})<\/span><br>/);
-                        var voterStatus = voterMatch[1].match(/<span>Voter Status: ([^<]+)<\/span><br>/);
-                        var voterCounty = voterMatch[1].match(/<span>County: ([^<]+)<\/span><br>/);
-                        var voterPrecinct = voterMatch[1].match(/<span>Precinct: ([^<]+)<\/span><br>/);
-                        var voterVUID = voterMatch[1].match(/<span>VUID: ([^<]+)<\/span><br>/);
-                        historyItem['foundVoters'].push({
-                            "name": voterName[1].trim(),
-                            "address": voterAddress[1].split(/<br ?\/?>/).map(function(i) { return i.trim(); }),
-                            "validFrom": `${voterValidFrom[3]}-${voterValidFrom[1]}-${voterValidFrom[2]}`,
-                            "dateRegistered": `${voterDateRegistered[3]}-${voterDateRegistered[1]}-${voterDateRegistered[2]}`,
-                            "voterStatus": voterStatus[1].trim(),
-                            "county": voterCounty[1].trim(),
-                            "precinct": voterPrecinct[1].trim(),
-                            "vuid": voterVUID[1].trim(),
-                        });
-                    }
+                // found a voter
+                var voterSection = /id="fullNameSpan"([\s\S]+?)<\/td>/mg;
+                var voterMatch = voterSection.exec(lookupXHR.responseText);
+                if(voterMatch){
 
-                    // voter lookup error
-                    var errorSection = /Voter NOT found using the information provided\./mg;
-                    var errorMatch = errorSection.exec(lookupXHR.responseText);
-                    console.log("errorMatch", errorMatch); // TODO: do something with this error instead of just logging it
+                    // extract voter details
+                    var voterName = voterMatch[1].match(/>Name: ([^<]+)<\/span><br>/);
+                    var voterAddress = voterMatch[1].match(/^Address: ([\s\S]+?)<\/span>/m);
+                    var voterValidFrom = voterMatch[1].match(/<span>Valid From: ([0-9]{2})\/([0-9]{2})\/([0-9]{4})<\/span><br>/);
+                    var voterDateRegistered = voterMatch[1].match(/<span>Effective Date of Registration: ([0-9]{2})\/([0-9]{2})\/([0-9]{4})<\/span><br>/);
+                    var voterStatus = voterMatch[1].match(/<span>Voter Status: ([^<]+)<\/span><br>/);
+                    var voterCounty = voterMatch[1].match(/<span>County: ([^<]+)<\/span><br>/);
+                    var voterPrecinct = voterMatch[1].match(/<span>Precinct: ([^<]+)<\/span><br>/);
+                    var voterVUID = voterMatch[1].match(/<span>VUID: ([^<]+)<\/span><br>/);
+                    historyItem['voter'] = {
+                        "name": voterName[1].trim(),
+                        "address": voterAddress[1].split(/<br ?\/?>/).map(function(i) { return i.trim(); }),
+                        "validFrom": `${voterValidFrom[3]}-${voterValidFrom[1]}-${voterValidFrom[2]}`,
+                        "dateRegistered": `${voterDateRegistered[3]}-${voterDateRegistered[1]}-${voterDateRegistered[2]}`,
+                        "voterStatus": voterStatus[1].trim(),
+                        "county": voterCounty[1].trim(),
+                        "precinct": voterPrecinct[1].trim(),
+                        "vuid": voterVUID[1].trim(),
+                    };
 
-                    // update the status based on the voter lookup results
-                    if(historyItem['foundVoters'].length === 1){
-                        entry['status'] = "valid";
-                        historyItem['checkingMessage'] = "Found 1 voter!";
-
-                        // assign a uuid if a new entry
-                        if(entry['key'] === null){
-                            entry['key'] = uuid4();
-                        }
-                    }
-                    // multiple voters found
-                    else if(historyItem['foundVoters'].length > 1){
-                        entry['status'] = "needs-attention";
-                        historyItem['checkingMessage'] = "Found multiple voters!";
-                    }
-                    // no voter found
-                    else if(historyItem['foundVoters'].length === 0){
-                        entry['status'] = "empty";
-                        historyItem['checkingMessage'] = "Found no voters :(";
-                    }
-
-                    // save entry to storage and call callback (if any)
-                    if(entry['key'] !== null){
-                        var dbUpdates = {};
-                        dbUpdates[entry['key']] = entry;
-                        browser.storage.local.set(dbUpdates).then(function(){
-                            // done saving to storage, so call the callback
-                            if(callback){
-                                callback(entry);
-                            }
-                        });
-                    }
-                    // nothing to save, so just call the callback
-                    else if(callback){
-                        callback(entry);
-                    }
+                    // lookup was a success!
+                    entry['status'] = "valid";
+                    entry['stateStorage']['lookup'] = historyItem['lookup'];
+                    entry['stateStorage']['voter'] = historyItem['voter'];
+                    historyItem['result'] = "success";
+                    historyItem['checkingMessage'] = "Found voter!"; // TODO: i18n
                 }
-            };
-            lookupXHR.send(thisLookupPayload);
-        }
 
-        // can ask for permission, so try it
-        browser.permissions.contains({
-            origins: ["*://*.sos.texas.gov/*"],
-        }).then(function(hasPermission){
+                // no voter found
+                var errorSection = /Voter NOT found using the information provided\./mg;
+                var errorMatch = errorSection.exec(lookupXHR.responseText);
+                if(errorMatch){
+                    entry['status'] = "empty";
+                    historyItem['result'] = "no_voter_found";
+                    historyItem['checkingMessage'] = "Found no voters :("; // TODO: i18n
+                    console.log("lookupXHR", lookupXHR); // TODO: do something with the error instead of just logging it
+                }
 
-            // has permission, so make the request
-            if(hasPermission){
-                doLookupRequest(lookupPayload);
-            }
+                // blocked by cloudflare
+                if(lookupXHR.status === 403
+                && lookupXHR.responseText.indexOf("Cloudflare Ray ID:") !== -1){
+                    entry['status'] = "needs-attention";
+                    historyItem['result'] = "blocked_by_cloudflare";
+                    historyItem['checkingMessage'] = "Blocked by Cloudflare :("; // TODO: i18n
+                    console.log("lookupXHR", lookupXHR); // TODO: do something with the error instead of just logging it
+                }
 
-            // don't have permission, and can't ask for it, so just log an error
-            else {
-                // log the error
-                entry['status'] = "needs-attention";
-                historyItem['checkingMessage'] = "Missing browser permission";
-                historyItem['error'] = {
-                    "type": "permission",
-                    "description": "We didn't have the browser's permission to check the Texas Secretary of State's website (sos.texas.gov).",
-                };
-                // save to storage
-                if(entry['key'] !== null){
-                    var dbUpdates = {};
-                    dbUpdates[entry['key']] = entry;
-                    browser.storage.local.set(dbUpdates).then(function(){
-                        // done saving to storage, so call the callback
-                        if(callback){
-                            callback(entry);
-                        }
-                    });
+                // needs permission
+                if(lookupXHR.status === 0){
+                    entry['status'] = "needs-attention";
+                    historyItem['result'] = "need_permission";
+                    historyItem['checkingMessage'] = "Need your permission to lookup your voter registration"; // TODO: i18n
+                    console.log("lookupXHR", lookupXHR); // TODO: do something with the error instead of just logging it
+                }
+
+                // unknown error if result still isn't set
+                if(historyItem['result'] === null){
+                    entry['status'] = "needs-attention";
+                    historyItem['result'] = "other_error";
+                    historyItem['checkingMessage'] = "An error occurred during lookup :("; // TODO: i18n
+                    console.log("lookupXHR", lookupXHR); // TODO: do something with the error instead of just logging it
+                }
+
+                // done checking, so call the callback
+                if(callback){
+                    callback(entry);
                 }
             }
-
-        });
+        };
+        lookupXHR.send(lookupPayload);
     },
 
     //////////////////////////////////////
@@ -576,7 +565,12 @@ PurgeAlert['TX'] = {
     // open the edit interface for an entry
     "openEdit": function(e, entryId){
         e.preventDefault();
-        console.log("openEdit!"); //TODO
+        browser.windows.create({
+            "type": "popup",
+            "url": "states/TX/edit_entry.html?entry=" + encodeURIComponent(entryId),
+            "width": 500,
+            "height": 500,
+        });
     },
 
     // open the remove confirmation interface for an entry
@@ -606,9 +600,20 @@ PurgeAlert['TX'] = {
         // get the entry from storage
         browser.storage.local.get(entryId).then(function(entries){
 
-            // set entry as pending and save it to storage
+            // add a new pending history item
             var entry = entries[entryId];
             entry['status'] = "pending";
+            entry['stateStorage']['history'].push({
+                "type": "runChecking",
+                "created": (new Date).toISOString(),
+                "checkingMessage": "Checking...", // TODO: i18n
+                "lookup": entry['stateStorage']['lookup'],
+                "result": null,
+                "error": {},
+                "voter": {},
+            });
+
+            // set entry as pending and save it to storage
             var dbUpdates = {};
             dbUpdates[entryId] = entry;
             browser.storage.local.set(dbUpdates).then(function(){
@@ -621,7 +626,11 @@ PurgeAlert['TX'] = {
                 entryDiv.removeAttribute("data-content");
 
                 // kickoff checking the registration again
-                PurgeAlert['TX'].checkRegistration(entry);
+                PurgeAlert['TX'].checkRegistration(entry, function(updatedEntry){
+                    var dbUpdates = {};
+                    dbUpdates[updatedEntry['key']] = updatedEntry;
+                    browser.storage.local.set(dbUpdates);
+                });
             });
 
         });

@@ -164,28 +164,37 @@ PurgeAlert['TX'] = {
 
                 // found the voter, so save the db entry and close the window
                 if(result === "success"){
-                    var dbUpdates = {};
+
+                    // generate new entryId for the new registration
                     entry['key'] = uuid4();
-                    dbUpdates[entry['key']] = entry;
-                    browser.storage.local.set(dbUpdates).then(function(){
 
-                        // change pending state to saving
-                        document.querySelector("#tx-results").innerHTML = `
-                            <span id="tx-voter-found">Voter found!</span>
-                            <a id="tx-close-window" href="#">Close this window</a>
-                        `;
-                        document.querySelector("#tx-voter-found").innerText = browser.i18n.getMessage("addRegSuccess");
-                        document.querySelector("#tx-close-window").innerText = browser.i18n.getMessage("addRegCloseWindow");
+                    // load the global entries map (so we can add the new entry id to it)
+                    browser.storage.local.get("entries").then(function(storageMatch){
+                        var dbUpdates = {};
+                        dbUpdates['entries'] = storageMatch['entries'] || {};
+                        dbUpdates['entries'][entry['key']] = true;
+                        dbUpdates[entry['key']] = entry;
+                        browser.storage.local.set(dbUpdates).then(function(){
 
-                        // close the add-registration interface
-                        document.querySelector("#tx-close-window").addEventListener("click", function(e){
-                            e.preventDefault();
-                            browser.windows.getCurrent().then(function(w){
-                                browser.windows.remove(w.id);
+                            // change pending state to saving
+                            document.querySelector("#tx-results").innerHTML = `
+                                <span id="tx-voter-found">Voter found!</span>
+                                <a id="tx-close-window" href="#">Close this window</a>
+                            `;
+                            document.querySelector("#tx-voter-found").innerText = browser.i18n.getMessage("addRegSuccess");
+                            document.querySelector("#tx-close-window").innerText = browser.i18n.getMessage("addRegCloseWindow");
+
+                            // close the add-registration interface
+                            document.querySelector("#tx-close-window").addEventListener("click", function(e){
+                                e.preventDefault();
+                                browser.windows.getCurrent().then(function(w){
+                                    browser.windows.remove(w.id);
+                                });
                             });
-                        });
 
+                        });
                     });
+
                 }
 
                 // couldn't find a matching voter, so ask to correct and retry
@@ -559,7 +568,12 @@ PurgeAlert['TX'] = {
     // open the log explorer for an entry
     "openLogs": function(e, entryId){
         e.preventDefault();
-        console.log("openLogs!"); //TODO
+        browser.windows.create({
+            "type": "popup",
+            "url": "states/TX/view_logs.html?entry=" + encodeURIComponent(entryId),
+            "width": 500,
+            "height": 500,
+        });
     },
 
     // open the edit interface for an entry

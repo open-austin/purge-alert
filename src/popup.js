@@ -83,11 +83,14 @@ function updateEntry(key){
 }
 
 // lookup all the current voter registration entries
+// storage['entries'] = {"<entryId>": true, ...}
+// storage['<entryId>'] = {...}
 function rebuildEntriesList(){
     // show rendering state
     document.querySelector("#rendering").style.display = "block";
 
-    browser.storage.local.get(null).then(function(entries){
+    browser.storage.local.get("entries").then(function(storageMatches){
+        var entries = storageMatches['entries'] || {};
 
         // loop through entries in storage and update its html
         var numEntries = 0;

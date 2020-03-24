@@ -4,20 +4,23 @@ var PurgeAlert = PurgeAlert || {};
 // language translations
 document.querySelector("#popup-title").innerText = browser.i18n.getMessage("popupTitle");
 document.querySelector("#blank-state span").innerText = browser.i18n.getMessage("popupBlankStateMessage");
-document.querySelector("#add-registration span").innerText = browser.i18n.getMessage("popupAddRegistrationButton");
 document.querySelector("#footer-link").innerText = browser.i18n.getMessage("popupFooterLink");
 document.querySelector("#footer-message").innerText = browser.i18n.getMessage("popupFooterMessage");
 
 // add registration click listener
-document.querySelector("#add-registration").addEventListener("click", function(e){
-    e.preventDefault();
-    browser.windows.create({
-        "type": "popup",
-        "url": "add_registration.html",
-        "width": 500,
-        "height": 500,
+var addRegistrationLinks = document.querySelectorAll(".add-registration");
+for(var i = 0; i < addRegistrationLinks.length; i++){
+    addRegistrationLinks[i].querySelector("span").innerText = browser.i18n.getMessage("popupAddRegistrationButton");
+    addRegistrationLinks[i].addEventListener("click", function(e){
+        e.preventDefault();
+        browser.windows.create({
+            "type": "popup",
+            "url": "add_registration.html",
+            "width": 500,
+            "height": 500,
+        });
     });
-});
+}
 
 // function for rendering an entry
 function renderEntry(entry){
@@ -86,9 +89,6 @@ function updateEntry(key){
 // storage['entries'] = {"<entryId>": true, ...}
 // storage['<entryId>'] = {...}
 function rebuildEntriesList(){
-    // show rendering state
-    document.querySelector("#rendering").style.display = "block";
-
     browser.storage.local.get("entries").then(function(storageMatches){
         var entries = storageMatches['entries'] || {};
 
@@ -110,15 +110,12 @@ function rebuildEntriesList(){
 
         // show/hide entries or blank state
         if(numEntries > 0){
-            document.querySelector("#entries").style.display = "block";
-            document.querySelector("#blank-state").style.display = "none";
+            document.querySelector("#entries").classList.remove("d-none");
+            document.querySelector("#blank-state").classList.add("none");
         } else {
-            document.querySelector("#entries").style.display = "none";
-            document.querySelector("#blank-state").style.display = "block";
+            document.querySelector("#entries").classList.add("d-none");
+            document.querySelector("#blank-state").classList.remove("d-none");
         }
-
-        // hide rendering state
-        document.querySelector("#rendering").style.display = "none";
 
         // re-render every half-second
         setTimeout(rebuildEntriesList, 500);

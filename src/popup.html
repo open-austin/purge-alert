@@ -2,104 +2,43 @@
 <html>
     <head>
         <meta charset="utf-8">
+        <link rel="stylesheet" href="/assets/bootstrap-4.4.1.min.css">
+        <link rel="stylesheet" href="/assets/common.css">
         <style>
-            body {
-                font-family: sans-serif;
-                font-size: 14px;
-                width: 400px;
-                box-sizing: border-box;
-                background-color: #fff9eb; /* beige */
-                color: #362e1b; /* brown */
-                margin: 0 18px 18px 18px;
-                line-height: 1.75em;
-            }
-            h1 {
-                text-align: center;
-                color: #362e1b; /* brown */
-            }
-            a {
-                color: #04606e; /* blue */
-                /*text-decoration: none;*/
-            }
-            #entries {
-                list-style: none;
-                padding-left: 0;
-            }
-            #rendering {
-                font-size: 6px;
-                color: #eee;
-                position: absolute;
-                right: 0;
-                top: 0;
-            }
         </style>
     </head>
     <body>
-        <span id="rendering">rendering...</span>
         <h1 id="popup-title">
             Purge Alert
         </h1>
-        <ul id="entries">
+        <div id="entries" class="d-none">
             <!--
-            <li id="entry-123123123..." class="entry">
-                <style>
-                    #entry-123-content {
-                        background-color: red;
-                    }
-                    #entry-123-content .see-logs {
-                        float: right;
-                    }
-                </style>
-                <div id="entry-123-content">
-                    <div>
-                        <div class="see-logs">
-                            <a href="#">see logs</a>
-                        </div>
-                        <h4 class="name">
-                            TX - Joe Smith
-                            <a href="#">edit</a>
-                        </h4>
-                        <div class="address">
-                            123 Main St, Austin, TX
-                            123 Main St, Austin, TX
-                            123 Main St, Austin, TX
-                        </div>
-                        <div class="vuid">
-                            VUID #: 1292389848393
-                        </div>
-                        <div class="status">
-                            <span>
-                                ✓
-                            </span>
-                            <span>
-                                ✓
-                            </span>
-                            Valid registration
-                        </div>
-                        <div class="updates">
-                            Last checked 2 days ago
-                            <a href="#">check now</a>
-                        </div>
-                    </div>
-                </div>
-            </li>
+            <div id="entry-123123123..." class="entry">...</div>
+            ...
             -->
-        </ul>
-        <div id="blank-state" style="display:none;">
+            <div>
+                <svg class="icon"><use href="/assets/sprite-fontawesome-4.7.0.svg#fa-plus-circle"/></svg>
+                <a href="#add-registration" class="add-registration">
+                <span>Add registration</span></a>
+            </div>
+        </div>
+        <div id="blank-state" class="d-none">
             <span>
                 No registrations added yet.
             </span>
-        </div>
-        <div>
-            [+] <a id="add-registration" href="#add-registration">
+            <div>
+                <svg class="icon"><use href="/assets/sprite-fontawesome-4.7.0.svg#fa-plus-circle"/></svg>
+                <a href="#add-registration" class="add-registration">
                 <span>Add registration</span></a>
+            </div>
         </div>
         <footer>
             <a id="footer-link" href="https://github.com/open-austin/purge-alert" target="_blank">Purge Alert</a>
             <span id="footer-message">is an open-source project by OpenAustin.</span>
         </footer>
-        <script src="assets/browser-polyfill.min.js"></script>
-        <script src="assets/common.js"></script>
+        <script src="/assets/browser-polyfill.min.js"></script>
+        <script src="/assets/bootstrap-native-2.0.2.min.js"></script>
+        <script src="/assets/common.js"></script>
         <script src="popup.js"></script>
     </body>
 </html>

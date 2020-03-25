@@ -13,17 +13,13 @@
     },
 
 
-    "popupTitle": {
-        "message": "Purge Alert",
-        "description": "Project title for the popup"
+    "popupBlankStateLink": {
+        "message": "Start monitoring your voter registration",
+        "description": "What the add registration button should say when there's no entries"
     },
-    "popupBlankStateMessage": {
-        "message": "No registrations added yet.",
-        "description": "What to say when there's no voter registration entries"
-    },
-    "popupAddRegistrationButton": {
-        "message": "add registration",
-        "description": "Button text for adding another voter registration to monitor"
+    "popupAddAdditionalLink": {
+        "message": "Monitor another registration",
+        "description": "What the add registration button should say when there's already entries"
     },
     "popupFooterLink": {
         "message": "Purge Alert",
@@ -50,6 +46,10 @@
     "addRegSubmit": {
         "message": "Submit",
         "description": "Button text for submitting a new voter registration"
+    },
+    "addRegCancel": {
+        "message": "Nevermind",
+        "description": "Button text for deciding not to add a registration (closes the window)"
     },
     "addRegSubmitting": {
         "message": "Submitting...",
@@ -110,7 +110,7 @@
         "description": "Button text for showing the permission prompt"
     },
     "addRegSuccess": {
-        "message": "Voter found!",
+        "message": "Voter found and added!",
         "description": "Message for when adding a new voter registration was successful"
     },
     "addRegCloseWindow": {
@@ -152,15 +152,15 @@
         "description": "Link to see the logs for a voter registration entry"
     },
     "editLink": {
-        "message": "edit",
+        "message": "Edit this entry",
         "description": "Link to edit a voter registration entry"
     },
     "removeLink": {
-        "message": "remove",
+        "message": "Remove this entry",
         "description": "Suffix for relative times in the future"
     },
     "checkAgainLink": {
-        "message": "check again",
+        "message": "Check again",
         "description": "Link to trigger checking a voter registration status again"
     },
     "checkAgainSubmit": {
@@ -171,12 +171,16 @@
         "message": "valid registration",
         "description": "Status message when a voter registeration is good"
     },
+    "lastUpdated": {
+        "message": "Last updated",
+        "description": "Prefix for when an entry was last updated"
+    },
     "lastUpdateValid": {
-        "message": "Last updated [DATE]",
+        "message": "All good!",
         "description": "Prefix for when an entry was last updated"
     },
     "lastUpdateEmpty": {
-        "message": "The most recent check on [DATE] didn't find this voter!",
+        "message": "Not voter found!",
         "description": "Error message for when couldn't find the entry's voter on the voter rolls"
     },
     "lastUpdateEmptyLink": {
@@ -190,10 +194,6 @@
     "lastUpdateNeedsAttentionLink": {
         "message": "See what's wrong",
         "description": "Error message for when the user needs to resolve some issue with their entry"
-    },
-    "editLink": {
-        "message": "edit",
-        "description": "Link to edit a voter registration entry"
     },
     "timeSincePast": {
         "message": "ago",

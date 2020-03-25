@@ -7,24 +7,29 @@
         <style>
         </style>
     </head>
-    <body>
-        <h1 id="add-registration-title">Lookup Your Voter Registration</h1>
-        <div>
-            <label id="state-dropdown-label" for="state-dropdown">State:</label>
-            <select id="state-dropdown" name="state">
+    <body class="p-3">
+        <h3 id="add-registration-title">
+            Lookup Your Voter Registration
+        </h3>
+        <div class="form-group mt-4 mx-auto">
+            <label id="state-dropdown-label" for="state-dropdown">
+                Select your state:
+            </label>
+            <select id="state-dropdown" name="state" class="form-control">
                 <option id="state-dropdown-placeholder" value="">Choose Your State...</option>
                 <option value="TX">Texas</option>
             </select>
         </div>
         <div id="state-section">
         </div>
-        <footer>
+        <footer class="ml-2 mr-2 mb-1 mt-3 small text-muted">
             <a id="footer-link" href="https://github.com/open-austin/purge-alert" target="_blank">Purge Alert</a>
             <span id="footer-message">is an open-source project by OpenAustin.</span>
         </footer>
         <script src="/assets/browser-polyfill.min.js"></script>
-        <script src="/assets/bootstrap-native-2.0.2.min.js"></script>
+        <script src="/assets/bootstrap-native-2.0.28.min.js"></script>
         <script src="/assets/common.js"></script>
         <script src="add_registration.js"></script>
     </body>
 </html>
+

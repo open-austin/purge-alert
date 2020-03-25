@@ -1,0 +1,85 @@
+<style>
+    #submit-wrapper {
+        margin-top: 10px;
+    }
+</style>
+<h3>
+    Texas <span id="tx-add-title"></span>
+</h3>
+<form id="tx-add-form">
+    <div class="form-group row mt-2">
+        <label for="tx-first-name" class="col-3"></label>
+        <div class="col-8">
+            <input id="tx-first-name" class="form-control" placeholder="">
+        </div>
+    </div>
+    <div class="form-group row">
+        <label for="tx-last-name" class="col-3"></label>
+        <div class="col-8">
+            <input id="tx-last-name" class="form-control" placeholder="">
+        </div>
+    </div>
+    <div class="form-group row">
+        <label for="tx-date-of-birth" class="col-3"></label>
+        <div class="col-8">
+            <input id="tx-date-of-birth" class="form-control" type="date" min="" max="">
+        </div>
+    </div>
+    <div class="form-group row">
+        <label for="tx-county" class="col-3"></label>
+        <div class="col-8">
+            <select id="tx-county" class="form-control">
+                <option id="tx-county-placeholder" value=""></option>
+            </select>
+        </div>
+    </div>
+    <div class="form-group row">
+        <label for="tx-zip-code" class="col-3"></label>
+        <div class="col-8">
+            <input id="tx-zip-code" class="form-control" placeholder="">
+        </div>
+    </div>
+    <div id="tx-submit-wrapper">
+        <input id="tx-submit-button" type="submit" class="btn btn-primary" value="">
+        <a id="tx-cancel" href="#" class="btn btn-link"></a>
+    </div>
+</form>
+<div id="tx-results" class="mt-2"></div>
+<div id="tx-permission-modal" class="modal fade" tabindex="-1" role="dialog" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-body text-center">
+                <div class="text-right">
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <h1 class="text-warning">
+                    <svg class="icon"><use href="/assets/sprite-fontawesome-4.7.0.svg#fa-exclamation-triangle"/></svg>
+                </h1>
+                <p id="tx-ask-permission"></p>
+                <button id="tx-grant-permission" class="btn btn-primary"></button>
+            </div>
+        </div>
+    </div>
+</div>
+<div id="tx-success-modal" class="modal fade" tabindex="-1" role="dialog" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-body text-center">
+                <div class="text-right">
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <h1 class="text-success">
+                    <svg class="icon"><use href="/assets/sprite-fontawesome-4.7.0.svg#fa-check"/></svg>
+                </h1>
+                <p id="tx-voter-found"></p>
+                <button id="tx-close-window" class="btn btn-success"></button>
+            </div>
+        </div>
+    </div>
+</div>
+
+

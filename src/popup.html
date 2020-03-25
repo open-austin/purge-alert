@@ -5,39 +5,48 @@
         <link rel="stylesheet" href="/assets/bootstrap-4.4.1.min.css">
         <link rel="stylesheet" href="/assets/common.css">
         <style>
+            body {
+                min-width: 400px;
+            }
         </style>
     </head>
-    <body>
-        <h1 id="popup-title">
-            Purge Alert
-        </h1>
-        <div id="entries" class="d-none">
-            <!--
-            <div id="entry-123123123..." class="entry">...</div>
-            ...
-            -->
-            <div>
-                <svg class="icon"><use href="/assets/sprite-fontawesome-4.7.0.svg#fa-plus-circle"/></svg>
-                <a href="#add-registration" class="add-registration">
-                <span>Add registration</span></a>
+    <body class="pt-2">
+        <div id="entries-wrapper" class="d-none ml-2 mr-2 mb-1">
+            <div id="entries">
+                <!--
+                <div id="entry-123123123..." class="entry">...</div>
+                ...
+                -->
+            </div>
+            <div class="mt-1">
+                <a
+                    href="#add-registration"
+                    class="add-registration small">
+                    <svg class="icon"><use href="/assets/sprite-fontawesome-4.7.0.svg#fa-plus-circle"/></svg>
+                    <span id="add-additional-link"></span>
+                </a>
             </div>
         </div>
-        <div id="blank-state" class="d-none">
-            <span>
-                No registrations added yet.
-            </span>
-            <div>
-                <svg class="icon"><use href="/assets/sprite-fontawesome-4.7.0.svg#fa-plus-circle"/></svg>
-                <a href="#add-registration" class="add-registration">
-                <span>Add registration</span></a>
-            </div>
+        <div id="blank-state" class="d-none ml-2 mr-2 mb-2">
+            <a href="#add-registration" class="add-registration btn btn-link w-100">
+                <div class="card">
+                    <div class="card-body text-center">
+                        <h3>
+                            <svg class="icon"><use href="/assets/sprite-fontawesome-4.7.0.svg#fa-plus-circle"/></svg>
+                        </h3>
+                        <div id="blank-state-link">
+                            Start monitoring your voter registration
+                        </div>
+                    </div>
+                </div>
+            </a>
         </div>
-        <footer>
+        <footer class="small text-muted ml-1 mr-1 mb-1">
             <a id="footer-link" href="https://github.com/open-austin/purge-alert" target="_blank">Purge Alert</a>
             <span id="footer-message">is an open-source project by OpenAustin.</span>
         </footer>
         <script src="/assets/browser-polyfill.min.js"></script>
-        <script src="/assets/bootstrap-native-2.0.2.min.js"></script>
+        <script src="/assets/bootstrap-native-2.0.28.min.js"></script>
         <script src="/assets/common.js"></script>
         <script src="popup.js"></script>
     </body>

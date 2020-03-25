@@ -2,22 +2,21 @@
 var PurgeAlert = PurgeAlert || {};
 
 // language translations
-document.querySelector("#popup-title").innerText = browser.i18n.getMessage("popupTitle");
-document.querySelector("#blank-state span").innerText = browser.i18n.getMessage("popupBlankStateMessage");
+document.querySelector("#blank-state-link").innerText = browser.i18n.getMessage("popupBlankStateLink");
+document.querySelector("#add-additional-link").innerText = browser.i18n.getMessage("popupAddAdditionalLink");
 document.querySelector("#footer-link").innerText = browser.i18n.getMessage("popupFooterLink");
 document.querySelector("#footer-message").innerText = browser.i18n.getMessage("popupFooterMessage");
 
 // add registration click listener
 var addRegistrationLinks = document.querySelectorAll(".add-registration");
 for(var i = 0; i < addRegistrationLinks.length; i++){
-    addRegistrationLinks[i].querySelector("span").innerText = browser.i18n.getMessage("popupAddRegistrationButton");
     addRegistrationLinks[i].addEventListener("click", function(e){
         e.preventDefault();
         browser.windows.create({
             "type": "popup",
             "url": "add_registration.html",
             "width": 500,
-            "height": 500,
+            "height": 700,
         });
     });
 }
@@ -59,13 +58,13 @@ function renderEntry(entry){
 // function for updating each entry
 function updateEntry(key){
 
-    // get or add entry list item to entries list
-    var entryLI = document.querySelector("#entry-" + key);
-    if(!entryLI){
-        entryLI = document.createElement("li");
-        entryLI.id = "entry-" + key;
-        entryLI.classList.add("entry");
-        document.querySelector("#entries").appendChild(entryLI);
+    // get or add entry item to entries container
+    var entryDiv = document.querySelector("#entry-" + key);
+    if(!entryDiv){
+        entryDiv = document.createElement("div");
+        entryDiv.id = "entry-" + key;
+        entryDiv.classList.add("entry");
+        document.querySelector("#entries").appendChild(entryDiv);
     }
 
     // lookup the entry in storage
@@ -95,25 +94,27 @@ function rebuildEntriesList(){
         // loop through entries in storage and update its html
         var numEntries = 0;
         for(var k in entries){
-            updateEntry(k);
-            numEntries += 1;
+            if(entries[k] !== undefined){
+                updateEntry(k);
+                numEntries += 1;
+            }
         }
 
         // remove any entries that don't exist anymore
-        var entryLIs = document.querySelectorAll(".entry");
-        for(var i = 0; i < entryLIs.length; i++){
-            var entryKey = entryLIs[i].id.replace(/entry-/, "");
+        var entryDivs = document.querySelectorAll(".entry");
+        for(var i = 0; i < entryDivs.length; i++){
+            var entryKey = entryDivs[i].id.replace(/entry-/, "");
             if(entries[entryKey] === undefined){
-                entryLIs[i].outerHTML = "";
+                entryDivs[i].outerHTML = "";
             }
         }
 
         // show/hide entries or blank state
         if(numEntries > 0){
-            document.querySelector("#entries").classList.remove("d-none");
-            document.querySelector("#blank-state").classList.add("none");
+            document.querySelector("#entries-wrapper").classList.remove("d-none");
+            document.querySelector("#blank-state").classList.add("d-none");
         } else {
-            document.querySelector("#entries").classList.add("d-none");
+            document.querySelector("#entries-wrapper").classList.add("d-none");
             document.querySelector("#blank-state").classList.remove("d-none");
         }
 

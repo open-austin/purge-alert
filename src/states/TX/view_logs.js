@@ -22,14 +22,16 @@ browser.storage.local.get(entryId).then(function(entries){
         // registration lookup record
         if(historyItem['type'] === "runChecking"){
             var historyItemHtml = `
-                <div>
-                    <div>
-                        ${historyItem['created']}
-                        - Looked up registration
-                    </div>
-                    <div>
-                        Result:
-                        ${historyItem['result'] ? historyItem['result'] : "pending"}
+                <div class="card mt-2">
+                    <div class="card-body">
+                        <div>
+                            ${historyItem['created']}
+                            - Looked up registration
+                        </div>
+                        <div>
+                            Result:
+                            ${historyItem['result'] ? historyItem['result'] : "pending"}
+                        </div>
                     </div>
                 </div>
             `; // TODO: make this better
@@ -40,9 +42,12 @@ browser.storage.local.get(entryId).then(function(entries){
 });
 
 // bind close window
-document.querySelector("#close-window").addEventListener("click", function(e){
-    e.preventDefault();
-    browser.windows.getCurrent().then(function(w){
-        browser.windows.remove(w.id);
+var closeButtons = document.querySelectorAll(".close-window");
+for(var i = 0; i < closeButtons.length; i++){
+    closeButtons[i].addEventListener("click", function(e){
+        e.preventDefault();
+        browser.windows.getCurrent().then(function(w){
+            browser.windows.remove(w.id);
+        });
     });
-});
+}

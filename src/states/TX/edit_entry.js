@@ -1,24 +1,28 @@
 // language translations
-document.querySelector("#first-name-label").innerText = browser.i18n.getMessage("editEntryFirstNameLabel");
+document.querySelector("label[for=first-name]").innerText = browser.i18n.getMessage("editEntryFirstNameLabel");
 document.querySelector("#first-name").setAttribute("placeholder", browser.i18n.getMessage("editEntryFirstNamePlaceholder"));
-document.querySelector("#last-name-label").innerText = browser.i18n.getMessage("editEntryLastNameLabel");
+document.querySelector("label[for=last-name]").innerText = browser.i18n.getMessage("editEntryLastNameLabel");
 document.querySelector("#last-name").setAttribute("placeholder", browser.i18n.getMessage("editEntryLastNamePlaceholder"));
-document.querySelector("#date-of-birth-label").innerText = browser.i18n.getMessage("editEntryDateOfBirthLabel");
-document.querySelector("#county-label").innerText = browser.i18n.getMessage("editEntryCountyLabel");
-document.querySelector("#zip-code-label").innerText = browser.i18n.getMessage("editEntryZipCodeLabel");
+document.querySelector("label[for=date-of-birth]").innerText = browser.i18n.getMessage("editEntryDateOfBirthLabel");
+document.querySelector("label[for=county]").innerText = browser.i18n.getMessage("editEntryCountyLabel");
+document.querySelector("label[for=zip-code]").innerText = browser.i18n.getMessage("editEntryZipCodeLabel");
 document.querySelector("#zip-code").setAttribute("placeholder", browser.i18n.getMessage("editEntryZipCodePlaceholder"));
-document.querySelector("#submit-button").setAttribute("value", browser.i18n.getMessage("editEntryUpdateButton"));
+document.querySelector("#submit-button").value = browser.i18n.getMessage("editEntryUpdateButton");
 document.querySelector("#cancel").innerText = browser.i18n.getMessage("editEntryCancelButton");
+document.querySelector("#ask-permission").innerText = browser.i18n.getMessage("stateTexasPermissionAsk");
+document.querySelector("#grant-permission").innerText = browser.i18n.getMessage("askPermissionButton");
 
 // birthdate min/max range
 document.querySelector("#date-of-birth").setAttribute("min", (new Date((new Date()).setFullYear((new Date()).getFullYear() - 150))).toISOString().substring(0,10));
 document.querySelector("#date-of-birth").setAttribute("max", (new Date()).toISOString().substring(0,10));
 
-// add counties to select dropdown
-var countyOptions = `${PurgeAlert['TX']['COUNTIES'].map((county) => `
-    <option value="${county}">${county}</option>
-`).join('')}`;
-document.querySelector("#county").innerHTML = countyOptions;
+// insert counties into dropdown
+PurgeAlert['TX']['COUNTIES'].map(function(county){
+    var option = document.createElement("option");
+    option.value = county;
+    option.innerText = county;
+    document.querySelector("#county").appendChild(option);
+});
 
 // load the entry from storage
 var entryId = (new URL(window.location.href)).searchParams.get("entry");
@@ -45,32 +49,53 @@ browser.storage.local.get(entryId).then(function(entries){
     // no checks, so show blank state
     if(latestHistoryItem === undefined){
         document.querySelector("#latest-status").innerHTML = `
-            <b>No checks yet</b>
-        `;// TODO: make this better
+            <div class="alert alert-secondary" role="alert">
+                No checks yet
+            </div>
+        `; // TODO: i18n
+    }
+
+    // voter found
+    if(latestHistoryItem['result'] === "success"){
+        document.querySelector("#latest-status").innerHTML = `
+            <div class="alert alert-success" role="alert">
+                Voter found during last check!
+            </div>
+        `; // TODO: i18n
     }
 
     // voter not found in the last check
     if(latestHistoryItem['result'] === "no_voter_found"){
         document.querySelector("#latest-status").innerHTML = `
-            <b>No voter registration found!</b>
-        `;// TODO: make this better and i18n
+            <div class="alert alert-danger" role="alert">
+                No voter registration found!
+            </div>
+        `; // TODO: i18n
     }
 
     // blocked by cloudflare
     if(latestHistoryItem['result'] === "blocked_by_cloudflare"){
         document.querySelector("#latest-status").innerHTML = `
-            <b>Lookup blocked by Cloudflare (this is usually because you are using a VPN)</b>
-        `;// TODO: make this better and i18n
+            <div class="alert alert-warning" role="alert">
+                Lookup blocked by Cloudflare (this is usually because you are using a VPN)
+            </div>
+        `; // TODO: i18n
     }
 
     // need permission
     if(latestHistoryItem['result'] === "need_permission"){
-        var renderedHTML = `
-            <b>Need to grant permission again.</b>
-        `;// TODO: make this better and i18n
-        return renderedHTML;
+        document.querySelector("#latest-status").innerHTML = `
+            <div class="alert alert-warning" role="alert">
+                Need to grant permission again.
+                <a
+                    href="#"
+                    class="alert-link"
+                    data-toggle="modal"
+                    data-target="#permission-modal"
+                    ><u>Fix now</u></a>
+            </div>
+        `; // TODO: i18n
     }
-
 
     // voter registration lookup and save updates to storage
     function _editVoterRegistration(e){
@@ -88,6 +113,7 @@ browser.storage.local.get(entryId).then(function(entries){
         entry['stateStorage']['history'].push({
             "type": "runChecking",
             "created": (new Date).toISOString(),
+            "updated": (new Date).toISOString(),
             "checkingMessage": "Checking...", // TODO: i18n
             "lookup": {
                 "firstName": document.querySelector("#first-name").value,
@@ -114,7 +140,9 @@ browser.storage.local.get(entryId).then(function(entries){
             for(var i = (entry['stateStorage']['history'].length - 1); i >= 0; i--){
                 var historyItem = entry['stateStorage']['history'][i];
                 if(historyItem['type'] === "runChecking"){
-                    document.querySelector("#results").innerHTML = historyItem['checkingMessage'];
+                    document.querySelector("#results").innerHTML = `
+                        <div class="text-muted">${historyItem['checkingMessage']}</div>
+                    `;
                     break;
                 }
             }
@@ -133,13 +161,20 @@ browser.storage.local.get(entryId).then(function(entries){
                 dbUpdates[entry['key']] = entry;
                 browser.storage.local.set(dbUpdates).then(function(){
 
-                    // change pending state to saving
+                    // show success message
                     document.querySelector("#results").innerHTML = `
-                        <span id="voter-found">Voter found!</span>
-                        <a id="close-window" href="#">Close this window</a>
+                        <h4 class="d-inline-block text-success">
+                            <svg class="icon"><use href="/assets/sprite-fontawesome-4.7.0.svg#fa-check"/></svg>
+                        </h4>
+                        ${browser.i18n.getMessage("editEntrySuccess")}
+                        <button id="close-window" class="btn btn-link">
+                            ${browser.i18n.getMessage("editEntryCloseWindow")}
+                        </button>
                     `;
-                    document.querySelector("#voter-found").innerText = browser.i18n.getMessage("editEntrySuccess");
-                    document.querySelector("#close-window").innerText = browser.i18n.getMessage("editEntryCloseWindow");
+
+                    // reset the submit button
+                    document.querySelector("#submit-button").value = browser.i18n.getMessage("editEntryUpdateButton");
+                    document.querySelector("#submit-button").removeAttribute("disabled");
 
                     // close the add-registration interface
                     document.querySelector("#close-window").addEventListener("click", function(e){
@@ -154,14 +189,28 @@ browser.storage.local.get(entryId).then(function(entries){
 
             // couldn't find a matching voter, so ask to correct and retry
             else if(result === "no_voter_found"){
-                document.querySelector("#results").innerHTML = browser.i18n.getMessage("voterNotFoundError");
+                // show the error
+                document.querySelector("#results").innerHTML = `
+                    <h4 class="d-inline-block text-danger">
+                        <svg class="icon"><use href="/assets/sprite-fontawesome-4.7.0.svg#fa-times-circle"/></svg>
+                    </h4>
+                    ${browser.i18n.getMessage("voterNotFoundError")}
+                `;
+                // reset the submit button
                 document.querySelector("#submit-button").value = browser.i18n.getMessage("editEntryUpdateButton");
                 document.querySelector("#submit-button").removeAttribute("disabled");
             }
 
             // request blocked by cloudflare >:(
             else if(result === "blocked_by_cloudflare"){
-                document.querySelector("#results").innerHTML = browser.i18n.getMessage("blockedByCloudflare");
+                // show the error
+                document.querySelector("#results").innerHTML = `
+                    <h4 class="d-inline-block text-warning">
+                        <svg class="icon"><use href="/assets/sprite-fontawesome-4.7.0.svg#fa-minus-circle"/></svg>
+                    </h4>
+                    ${browser.i18n.getMessage("blockedByCloudflare")}
+                `;
+                // reset the submit button
                 document.querySelector("#submit-button").value = browser.i18n.getMessage("editEntryUpdateButton");
                 document.querySelector("#submit-button").removeAttribute("disabled");
                 //TODO: add recovery options
@@ -169,18 +218,27 @@ browser.storage.local.get(entryId).then(function(entries){
 
             // didn't have permission to access the TX SOS site >:(
             else if(result === "need_permission"){
-                document.querySelector("#results").innerHTML = browser.i18n.getMessage("needPermissionError");
+                // show modal to prepare the user for the popup
+                var permissionModal = new BSN.Modal(document.querySelector("#permission-modal"));
+                permissionModal.show();
+                // reset the submit button
                 document.querySelector("#submit-button").value = browser.i18n.getMessage("editEntryUpdateButton");
                 document.querySelector("#submit-button").removeAttribute("disabled");
-                //TODO: add recovery options
             }
 
             // some other error occurred
             else if(result === "other_error"){
-                document.querySelector("#results").innerHTML = browser.i18n.getMessage("voterLookupError");
+                // show the error
+                document.querySelector("#results").innerHTML = `
+                    <h4 class="d-inline-block text-danger">
+                        <svg class="icon"><use href="/assets/sprite-fontawesome-4.7.0.svg#fa-exclamation-triangle"/></svg>
+                    </h4>
+                    ${browser.i18n.getMessage("voterLookupError")}
+                `;
+                // reset the submit button
                 document.querySelector("#submit-button").value = browser.i18n.getMessage("editEntryUpdateButton");
                 document.querySelector("#submit-button").removeAttribute("disabled");
-                //TODO: add retry/debug/support options
+                //TODO: add recovery options
             }
         }
 
@@ -198,37 +256,44 @@ browser.storage.local.get(entryId).then(function(entries){
             // doesn't have permission, so ask the user to provide permission
             else {
 
-                // show message to prepare the user for the popup
-                document.querySelector("#results").innerHTML = `
-                    ${browser.i18n.getMessage("stateTexasPermissionAsk")}:
-                    <button id="grant-permission">${browser.i18n.getMessage("askPermissionButton")}</button>
-                `;
+                // show modal to prepare the user for the popup
+                var permissionModal = new BSN.Modal(document.querySelector("#permission-modal"));
+                permissionModal.show();
 
-                // ask for permission when the user says to show the prompt
-                document.querySelector("#grant-permission").addEventListener("click", function(e){
-                    e.preventDefault();
-
-                    // extension permission request
-                    browser.permissions.request({
-                        origins: ["*://*.sos.texas.gov/*"],
-                    }).then(function(givenPermission){
-
-                        // given permission, so check the submitted registration
-                        if(givenPermission){
-                            PurgeAlert['TX'].checkRegistration(entry, _processResults);
-                            intervalID = setInterval(_monitorStatus, 100);
-                        }
-
-                        // permission denied, so show the same permission prep
-                        else {
-                            document.querySelector("#results").innerHTML = `
-                                ${browser.i18n.getMessage("stateTexasPermissionAsk")}:
-                                <button id="grant-permission">${browser.i18n.getMessage("askPermissionButton")}</button>
-                            `;
-                        }
-                    });
-                });
+                // reset the submit button
+                document.querySelector("#results").innerHTML = "";
+                document.querySelector("#submit-button").value = browser.i18n.getMessage("editEntryUpdateButton");
+                document.querySelector("#submit-button").removeAttribute("disabled");
             }
+        });
+
+        // ask for permission when the user says to show the prompt
+        document.querySelector("#grant-permission").addEventListener("click", function(e){
+            e.preventDefault();
+
+            // extension permission request
+            browser.permissions.request({
+                origins: ["*://*.sos.texas.gov/*"],
+            }).then(function(givenPermission){
+
+                // close the modal
+                var permissionModal = new BSN.Modal(document.querySelector("#permission-modal"));
+                permissionModal.hide();
+
+                // given permission, so check the submitted registration
+                if(givenPermission){
+                    PurgeAlert['TX'].checkRegistration(entry, _processResults);
+                    intervalID = setInterval(_monitorStatus, 100);
+                }
+
+                // permission denied, so show the same permission prep
+                else {
+
+                    document.querySelector("#results").innerHTML = "";
+                    document.querySelector("#submit-button").value = browser.i18n.getMessage("editEntryUpdateButton");
+                    document.querySelector("#submit-button").removeAttribute("disabled");
+                }
+            });
         });
     }
 

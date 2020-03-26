@@ -129,30 +129,17 @@ PurgeAlert['TX'] = {
         // found one voter's registration, hooray!
         var renderedHTML = `
             <style>
-                #entry-${entry['key']}-content .card-body {
-                    padding: 0;
-                }
-                #entry-${entry['key']}-content .card-body {
-                    padding: 0;
-                }
-                #entry-${entry['key']}-content .entry-topline {
-                    padding: 0 4px;
-                }
                 #entry-${entry['key']}-content .entry-body {
-                    margin: 0;
                     font-size: 0.8rem;
                 }
                 #entry-${entry['key']}-content .name {
                     font-size: 1rem;
                     font-weight: bold;
                 }
-                #entry-${entry['key']}-content .entry-bottomline {
-                    padding: 0 4px;
-                }
             </style>
-            <div id="entry-${entry['key']}-content" class="card">
-                <div class="card-body">
-                    <div class="text-right entry-topline">
+            <div id="entry-${entry['key']}-content" class="card mt-2">
+                <div class="card-body p-0">
+                    <div class="text-right pl-2 pr-2">
                         <a
                             href="#"
                             class="small text-muted"
@@ -172,7 +159,7 @@ PurgeAlert['TX'] = {
                             title="${browser.i18n.getMessage("removeLink")}"
                             ><svg class="icon"><use href="/assets/sprite-fontawesome-4.7.0.svg#fa-times"/></svg></a>
                     </div>
-                    <div class="row entry-body">
+                    <div class="row entry-body m-0">
                         <div class="col-3">
                             <div class="row align-items-center">
                                 <div class="col text-center">
@@ -192,19 +179,21 @@ PurgeAlert['TX'] = {
                             </div>
                             <div>
                                 ${lastUpdatedHtml}
-                                <a
-                                    href="#"
-                                    class="check-again-button text-muted"
-                                    data-run="checkAgain"
-                                    data-state="TX"
-                                    data-entry="${entry['key']}"
-                                    aria-label="${browser.i18n.getMessage("checkAgainLink")}"
-                                    title="${browser.i18n.getMessage("checkAgainLink")}"
-                                    ><svg class="icon"><use href="/assets/sprite-fontawesome-4.7.0.svg#fa-repeat"/></svg></a>
+                                ${entry['status'] !== "pending" ? `
+                                    <a
+                                        href="#"
+                                        class="check-again-button text-muted"
+                                        data-run="checkAgain"
+                                        data-state="TX"
+                                        data-entry="${entry['key']}"
+                                        aria-label="${browser.i18n.getMessage("checkAgainLink")}"
+                                        title="${browser.i18n.getMessage("checkAgainLink")}"
+                                        ><svg class="icon"><use href="/assets/sprite-fontawesome-4.7.0.svg#fa-repeat"/></svg></a>
+                                ` : ""}
                             </div>
                         </div>
                     </div>
-                    <div class="text-right entry-bottomline">
+                    <div class="text-right pl-2 pr-2">
                         <a
                             href="#"
                             class="small text-muted"

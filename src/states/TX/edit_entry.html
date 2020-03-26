@@ -5,44 +5,68 @@
         <link rel="stylesheet" href="/assets/bootstrap-4.4.1.min.css">
         <link rel="stylesheet" href="/assets/common.css">
         <style>
-            body {
-                font-family: sans-serif;
-                font-size: 14px;
-                box-sizing: border-box;
-            }
         </style>
     </head>
-    <body>
+    <body class="p-3">
         <div id="latest-status">
         </div>
-        <form id="edit-form">
-            <div>
-                <label id="first-name-label" for="first-name"></label>
-                <input id="first-name" placeholder="">
-            </div>
-            <div>
-                <label id="last-name-label" for="last-name"></label>
-                <input id="last-name" placeholder="">
-            </div>
-            <div>
-                <label id="date-of-birth-label" for="tx-date-of-birth"></label>
-                <input id="date-of-birth" type="date" min="" max="">
-            </div>
-            <div>
-                <label id="county-label" for="county"></label>
-                <select id="county"></select>
-            </div>
-            <div>
-                <label id="zip-code-label" for="zip-code"></label>
-                <input id="zip-code" placeholder="">
-            </div>
-            <div id="submit-wrapper">
-                <input id="submit-button" type="submit" value="">
-                <a id="cancel" href="#"></a>
-            </div>
-        </form>
-        <div id="results">
+        <div>
+            <form id="edit-form">
+                <div class="form-group row mt-2">
+                    <label for="first-name" class="col-3"></label>
+                    <div class="col-8">
+                        <input id="first-name" class="form-control" placeholder="">
+                    </div>
+                </div>
+                <div class="form-group row mt-2">
+                    <label for="last-name" class="col-3"></label>
+                    <div class="col-8">
+                        <input id="last-name" class="form-control" placeholder="">
+                    </div>
+                </div>
+                <div class="form-group row mt-2">
+                    <label for="date-of-birth" class="col-3"></label>
+                    <div class="col-8">
+                        <input id="date-of-birth" class="form-control" type="date" min="" max="">
+                    </div>
+                </div>
+                <div class="form-group row mt-2">
+                    <label for="county" class="col-3"></label>
+                    <div class="col-8">
+                        <select id="county" class="form-control"></select>
+                    </div>
+                </div>
+                <div class="form-group row mt-2">
+                    <label for="zip-code" class="col-3"></label>
+                    <div class="col-8">
+                        <input id="zip-code" class="form-control" placeholder="">
+                    </div>
+                </div>
+                <div id="submit-wrapper">
+                    <input id="submit-button" class="btn btn-primary" type="submit" value="">
+                    <a id="cancel" class="btn btn-link" href="#"></a>
+                </div>
+            </form>
         </div>
+        <div id="permission-modal" class="modal fade" tabindex="-1" role="dialog" aria-hidden="true">
+            <div class="modal-dialog" role="document">
+                <div class="modal-content">
+                    <div class="modal-body text-center">
+                        <div class="text-right">
+                            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                <span aria-hidden="true">&times;</span>
+                            </button>
+                        </div>
+                        <h1 class="text-warning">
+                            <svg class="icon"><use href="/assets/sprite-fontawesome-4.7.0.svg#fa-exclamation-triangle"/></svg>
+                        </h1>
+                        <p id="ask-permission"></p>
+                        <button id="grant-permission" class="btn btn-primary"></button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div id="results" class="mt-2"></div>
         <script src="/assets/browser-polyfill.min.js"></script>
         <script src="/assets/bootstrap-native-2.0.28.min.js"></script>
         <script src="/assets/common.js"></script>

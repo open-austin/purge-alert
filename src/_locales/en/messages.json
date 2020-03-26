@@ -250,7 +250,7 @@
         "description": "Button text pending state for updating an existing entry"
     },
     "editEntryCancelButton": {
-        "message": "Nevermind",
+        "message": "Close",
         "description": "Don't edit and entry and close the window"
     },
     "editEntrySuccess": {

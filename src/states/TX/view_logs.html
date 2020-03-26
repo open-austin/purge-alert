@@ -12,11 +12,20 @@
             }
         </style>
     </head>
-    <body>
-        <div id="logs">
+    <body class="p-3">
+        <h4>
+            Logs
+            <button class="close-window btn btn-link btn-sm">
+                Close this window
+            </button>
+        </h4>
+        <div class="row mt-2">
+            <div id="logs" class="col"></div>
         </div>
-        <div>
-            <button id="close-window">Close this window</button>
+        <div class="mt-3">
+            <button class="close-window btn btn-primary btn-sm">
+                Close this window
+            </button>
         </div>
         <script src="/assets/browser-polyfill.min.js"></script>
         <script src="/assets/bootstrap-native-2.0.28.min.js"></script>
